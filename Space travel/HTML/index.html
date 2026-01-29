@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Космический трип — путешествие к звёздам</title>
+  <style>
+    :root{--space1:#000428;--space2:#004e92;--neon1:#00f7ff;--neon2:#ff00cc}
+    html,body{height:100%;margin:0;font-family:'Courier New',monospace;background:radial-gradient(ellipse at center,var(--space1),var(--space2));overflow:hidden;color:#fff}
+    .container{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;padding:20px}
+    h1{font-size:clamp(28px,6vw,56px);margin:0;text-align:center;letter-spacing:3px;text-shadow:0 0 20px var(--neon1),0 0 40px var(--neon2);position:relative}
+    .control-panel{background:rgba(0,20,40,0.7);padding:25px;border-radius:15px;border:2px solid var(--neon1);box-shadow:0 0 30px rgba(0,247,255,0.5);display:flex;gap:15px;flex-wrap:wrap;justify-content:center}
+    button{background:linear-gradient(45deg,#0011ff,#ff00cc);border:2px solid #00f7ff;color:white;padding:12px 24px;border-radius:8px;font-weight:bold;cursor:pointer;transition:all 0.3s;text-transform:uppercase;letter-spacing:1px}
+    button:hover{transform:scale(1.1);box-shadow:0 0 25px #00f7ff}
+    #spaceCanvas{width:100%;max-width:1000px;height:70vh;border:3px solid #00f7ff;border-radius:10px;background:black;box-shadow:0 0 50px rgba(0,247,255,0.3)}
+    .star{position:absolute;background:white;border-radius:50%;animation:twinkle 2s infinite}
+    .planet{position:absolute;border-radius:50%;animation:orbit linear infinite}
+    @keyframes twinkle{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+    @keyframes orbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    .pulse{animation:pulseGlow 1.5s infinite}
+    @keyframes pulseGlow{0%,100%{filter:drop-shadow(0 0 5px #00f7ff)}50%{filter:drop-shadow(0 0 20px #ff00cc)}}
+    .info{position:absolute;bottom:20px;left:20px;font-size:14px;color:#88ffff;opacity:0.8}
+  </style>
+</head>
+<body>
+  <div id="stars"></div>
+  <div class="container">
+    <h1 class="pulse">КОСМИЧЕСКИЙ ТРИП</h1>
+    <div class="control-panel">
+      <button id="launch">ЗАПУСК РАКЕТЫ</button>
+      <button id="blackhole">ЧЁРНАЯ ДЫРА</button>
+      <button id="nebula">СОЗДАТЬ ТУМАННОСТЬ</button>
+      <button id="hyperjump">ГИПЕРПРЫЖОК</button>
+    </div>
+    <canvas id="spaceCanvas"></canvas>
+  </div>
+  <div class="info">Используйте мышь для управления камерой • Пробел для сброса</div>
+
+  <script>
+    const canvas = document.getElementById('spaceCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    
+    const stars = [];
+    const planets = [];
+    const particles = [];
+    
+    // Создание звёзд
+    for(let i=0;i<200;i++){
+      stars.push({
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        size: Math.random()*3,
+        speed: Math.random()*0.5,
+        opacity: Math.random()
+      });
+    }
+    
+    function drawStars(){
+      stars.forEach(star => {
+        ctx.fillStyle = `rgba(255,255,255,${star.opacity})`;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI*2);
+        ctx.fill();
+      });
+    }
+    
+    function createPlanet(){
+      const size = 30 + Math.random()*70;
+      planets.push({
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        size: size,
+        color: `hsl(${Math.random()*360}, 100%, 50%)`,
+        orbitRadius: 100 + Math.random()*200,
+        angle: Math.random()*Math.PI*2,
+        speed: 0.001 + Math.random()*0.003
+      });
+    }
+    
+    function drawPlanets(){
+      planets.forEach(planet => {
+        // Орбита
+        ctx.strokeStyle = 'rgba(0,247,255,0.3)';
+        ctx.beginPath();
+        ctx.arc(canvas.width/2, canvas.height/2, planet.orbitRadius, 0, Math.PI*2);
+        ctx.stroke();
+        
+        // Планета
+        planet.angle += planet.speed;
+        const x = canvas.width/2 + Math.cos(planet.angle)*planet.orbitRadius;
+        const y = canvas.height/2 + Math.sin(planet.angle)*planet.orbitRadius;
+        
+        // Свечение
+        const glow = ctx.createRadialGradient(x, y, 0, x, y, planet.size*1.5);
+        glow.addColorStop(0, planet.color);
+        glow.addColorStop(1, 'transparent');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(x, y, planet.size*1.5, 0, Math.PI*2);
+        ctx.fill();
+        
+        // Сама планета
+        ctx.fillStyle = planet.color;
+        ctx.beginPath();
+        ctx.arc(x, y, planet.size, 0, Math.PI*2);
+        ctx.fill();
+        
+        // Кольца
+        ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(x, y, planet.size*1.5, planet.size*0.3, planet.angle, 0, Math.PI*2);
+        ctx.stroke();
+      });
+    }
+    
+    function createParticles(x, y, count, color){
+      for(let i=0;i<count;i++){
+        particles.push({
+          x, y,
+          vx: (Math.random()-0.5)*10,
+          vy: (Math.random()-0.5)*10,
+          size: 2 + Math.random()*5,
+          color: color || `hsl(${Math.random()*360},100%,50%)`,
+          life: 100
+        });
+      }
+    }
+    
+    function drawParticles(){
+      for(let i=particles.length-1;i>=0;i--){
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+        
+        if(p.life <= 0){
+          particles.splice(i,1);
+          continue;
+        }
+        
+        ctx.globalAlpha = p.life/100;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+    
+    function animate(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawStars();
+      drawPlanets();
+      drawParticles();
+      requestAnimationFrame(animate);
+    }
+    
+    // Интерактивность
+    document.getElementById('launch').addEventListener('click',()=>{
+      createParticles(canvas.width/2, canvas.height, 100, '#ff3300');
+      createParticles(canvas.width/2, canvas.height-50, 50, '#ffff00');
+    });
+    
+    document.getElementById('blackhole').addEventListener('click',()=>{
+      const x = canvas.width/2;
+      const y = canvas.height/2;
+      // Чёрная дыра
+      const gradient = ctx.createRadialGradient(x, y, 0, x, y, 100);
+      gradient.addColorStop(0, 'black');
+      gradient.addColorStop(0.7, 'purple');
+      gradient.addColorStop(1, 'transparent');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(x, y, 100, 0, Math.PI*2);
+      ctx.fill();
+      
+      // Эффект всасывания
+      stars.forEach(star => {
+        const dx = x - star.x;
+        const dy = y - star.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < 300){
+          star.x += dx/dist * 5;
+          star.y += dy/dist * 5;
+        }
+      });
+    });
+    
+    document.getElementById('nebula').addEventListener('click',()=>{
+      for(let i=0;i<5;i++) createPlanet();
+    });
+    
+    document.getElementById('hyperjump').addEventListener('click',()=>{
+      // Эффект гиперпрыжка
+      canvas.style.filter = 'blur(20px)';
+      setTimeout(()=>canvas.style.filter='blur(0px)', 500);
+      stars.forEach(star => {
+        star.x += (Math.random()-0.5)*100;
+        star.y += (Math.random()-0.5)*100;
+      });
+    });
+    
+    // Взаимодействие с мышью
+    canvas.addEventListener('mousemove',(e)=>{
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      createParticles(x, y, 3);
+    });
+    
+    animate();
+    
+    // Адаптивность
+    window.addEventListener('resize',()=>{
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    });
+  </script>
+</body>
+</html>
