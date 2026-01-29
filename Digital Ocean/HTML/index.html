@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Цифровой океан — волны данных</title>
+  <style>
+    :root{--deep:#001133;--ocean:#004466;--glow1:#00ffff;--glow2:#ff00ff}
+    html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:linear-gradient(to bottom,var(--deep),var(--ocean));overflow:hidden;color:#fff}
+    .main{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:25px}
+    h1{font-size:clamp(32px,7vw,64px);margin:0;background:linear-gradient(90deg,var(--glow1),var(--glow2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 30px rgba(0,255,255,0.5)}
+    .interface{display:flex;gap:15px;background:rgba(0,40,80,0.6);padding:20px;border-radius:12px;border:1px solid var(--glow1);backdrop-filter:blur(10px)}
+    .btn{background:rgba(0,100,200,0.7);border:1px solid var(--glow1);color:white;padding:10px 20px;border-radius:6px;cursor:pointer;transition:all 0.3s}
+    .btn:hover{background:rgba(0,150,255,0.9);box-shadow:0 0 15px var(--glow1)}
+    #waveCanvas{width:90vw;height:60vh;max-width:1200px;border:2px solid var(--glow1);border-radius:8px;background:rgba(0,20,40,0.9)}
+    .dataFish{position:absolute;font-size:24px;pointer-events:none;animation:swim 4s linear infinite}
+    @keyframes swim{0%{transform:translateX(-100px) rotate(0deg)}100%{transform:translateX(calc(100vw + 100px)) rotate(360deg)}}
+    .bubble{position:absolute;background:rgba(0,255,255,0.3);border-radius:50%;animation:floatUp 3s linear infinite}
+    @keyframes floatUp{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-100px) scale(0.5);opacity:0}}
+    .instructions{position:absolute;bottom:20px;right:20px;font-size:12px;color:#88ffff;opacity:0.7}
+  </style>
+</head>
+<body>
+  <div id="fishes"></div>
+  <div id="bubbles"></div>
+  <div class="main">
+    <h1>ЦИФРОВОЙ ОКЕАН</h1>
+    <div class="interface">
+      <button class="btn" id="makeWave">Создать волну</button>
+      <button class="btn" id="addFish">Добавить рыбу</button>
+      <button class="btn" id="storm">Шторм данных</button>
+      <button class="btn" id="clear">Очистить</button>
+    </div>
+    <canvas id="waveCanvas"></canvas>
+  </div>
+  <div class="instructions">Кликните по волнам для создания ряби • Двойной клик для больших волн</div>
+
+  <script>
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    
+    const waves = [];
+    const particles = [];
+    
+    // Инициализация волн
+    for(let i=0;i<5;i++){
+      waves.push({
+        x: i * (canvas.width/4),
+        y: canvas.height/2,
+        amplitude: 20 + Math.random()*30,
+        frequency: 0.02 + Math.random()*0.03,
+        speed: 0.02 + Math.random()*0.03,
+        phase: Math.random()*Math.PI*2
+      });
+    }
+    
+    function drawWaves(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      
+      // Фоновый градиент
+      const gradient = ctx.createLinearGradient(0,0,0,canvas.height);
+      gradient.addColorStop(0,'#001133');
+      gradient.addColorStop(1,'#004466');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      
+      // Волны
+      waves.forEach(wave => {
+        wave.phase += wave.speed;
+        
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height);
+        
+        for(let x=0; x<=canvas.width; x+=5){
+          const y = wave.y + Math.sin(x*wave.frequency + wave.phase) * wave.amplitude;
+          if(x===0) ctx.moveTo(x,y);
+          else ctx.lineTo(x,y);
+        }
+        
+        ctx.lineTo(canvas.width, canvas.height);
+        ctx.closePath();
+        
+        const waveGradient = ctx.createLinearGradient(0,wave.y-50,0,wave.y+50);
+        waveGradient.addColorStop(0,'rgba(0,255,255,0.3)');
+        waveGradient.addColorStop(1,'rgba(255,0,255,0.1)');
+        ctx.fillStyle = waveGradient;
+        ctx.fill();
+        
+        ctx.strokeStyle = '#00ffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+      
+      // Частицы (данные)
+      for(let i=particles.length-1;i>=0;i--){
+        const p = particles[i];
+        p.y += p.vy;
+        p.x += Math.sin(p.y*0.01)*0.5;
+        p.life--;
+        
+        if(p.life <= 0){
+          particles.splice(i,1);
+          continue;
+        }
+        
+        ctx.globalAlpha = p.life/100;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+    
+    function createParticle(x,y,color){
+      particles.push({
+        x, y,
+        vy: -1 - Math.random()*2,
+        size: 2 + Math.random()*4,
+        color: color || `hsl(${Math.random()*60 + 180},100%,50%)`,
+        life: 50 + Math.random()*50
+      });
+    }
+    
+    function createDataFish(){
+      const fish = document.createElement('div');
+      fish.className = 'dataFish';
+      fish.textContent = ['🐠','🐟','🐡','🦈','🐋','💾','🔢','📊'][Math.floor(Math.random()*8)];
+      fish.style.left = '-100px';
+      fish.style.top = Math.random()*80 + '%';
+      fish.style.color = `hsl(${Math.random()*60 + 180},100%,60%)`;
+      fish.style.animationDuration = (3 + Math.random()*4) + 's';
+      fish.style.animationDelay = Math.random()*2 + 's';
+      document.getElementById('fishes').appendChild(fish);
+      
+      setTimeout(()=>fish.remove(), 7000);
+    }
+    
+    function createBubble(){
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.style.left = Math.random()*100 + 'vw';
+      bubble.style.bottom = '0';
+      bubble.style.width = bubble.style.height = (5 + Math.random()*20) + 'px';
+      document.getElementById('bubbles').appendChild(bubble);
+      
+      setTimeout(()=>bubble.remove(), 3000);
+    }
+    
+    function animate(){
+      drawWaves();
+      requestAnimationFrame(animate);
+    }
+    
+    // Управление
+    document.getElementById('makeWave').addEventListener('click',()=>{
+      waves.push({
+        x: Math.random()*canvas.width,
+        y: canvas.height/2 + Math.random()*100 - 50,
+        amplitude: 30 + Math.random()*40,
+        frequency: 0.01 + Math.random()*0.04,
+        speed: 0.01 + Math.random()*0.04,
+        phase: Math.random()*Math.PI*2
+      });
+    });
+    
+    document.getElementById('addFish').addEventListener('click',()=>{
+      for(let i=0;i<3;i++) createDataFish();
+    });
+    
+    document.getElementById('storm').addEventListener('click',()=>{
+      // Шторм
+      for(let i=0;i<10;i++){
+        waves.forEach(wave => {
+          wave.amplitude += 10;
+          wave.frequency += 0.01;
+        });
+        setTimeout(()=>{
+          waves.forEach(wave => {
+            wave.amplitude -= 10;
+            wave.frequency -= 0.01;
+          });
+        }, 2000);
+      }
+      
+      for(let i=0;i<50;i++){
+        createParticle(Math.random()*canvas.width, canvas.height, '#ff00ff');
+      }
+    });
+    
+    document.getElementById('clear').addEventListener('click',()=>{
+      waves.length = 0;
+      particles.length = 0;
+    });
+    
+    canvas.addEventListener('click',(e)=>{
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      // Создать круговую волну
+      waves.push({
+        x: x,
+        y: y,
+        amplitude: 40,
+        frequency: 0.05,
+        speed: 0.03,
+        phase: 0
+      });
+      
+      // Частицы
+      for(let i=0;i<20;i++){
+        createParticle(x,y);
+      }
+    });
+    
+    canvas.addEventListener('dblclick',(e)=>{
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      
+      // Большая волна
+      waves.push({
+        x: x,
+        y: canvas.height/2,
+        amplitude: 80,
+        frequency: 0.02,
+        speed: 0.01,
+        phase: 0
+      });
+    });
+    
+    // Автоматические эффекты
+    setInterval(()=>{
+      if(Math.random()<0.3) createBubble();
+      if(Math.random()<0.1) createParticle(Math.random()*canvas.width, canvas.height);
+    }, 1000);
+    
+    animate();
+    
+    window.addEventListener('resize',()=>{
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    });
+  </script>
+</body>
+</html>
