@@ -52,7 +52,7 @@
     const nodesPerLayer = 4;
     let animationSpeed = 5;
     
-    // Инициализация нейронов
+  
     function initNetwork(){
       nodes.length = 0;
       connections.length = 0;
@@ -75,7 +75,7 @@
           layerNodes.push(node);
         }
         
-        // Создание связей между слоями
+        
         if(l > 0){
           const prevLayer = nodes.filter(n => n.layer === l-1);
           layerNodes.forEach(node => {
@@ -97,7 +97,7 @@
     function drawNetwork(){
       ctx.clearRect(0,0,width,height);
       
-      // Фоновая сетка
+     
       ctx.strokeStyle = 'rgba(255,255,255,0.05)';
       ctx.lineWidth = 1;
       const gridSize = 40;
@@ -114,7 +114,7 @@
         ctx.stroke();
       }
       
-      // Связи
+   
       connections.forEach(conn => {
         const gradient = ctx.createLinearGradient(
           conn.from.x, conn.from.y,
@@ -137,7 +137,6 @@
         ctx.lineTo(conn.to.x, conn.to.y);
         ctx.stroke();
         
-        // Анимация сигнала
         if(conn.active){
           const progress = conn.signalProgress || 0;
           const x = conn.from.x + (conn.to.x - conn.from.x) * progress;
@@ -156,9 +155,9 @@
         }
       });
       
-      // Нейроны
+      
       nodes.forEach(node => {
-        // Свечение
+        
         const gradient = ctx.createRadialGradient(
           node.x, node.y, 0,
           node.x, node.y, node.radius*2
@@ -171,13 +170,12 @@
         ctx.arc(node.x, node.y, node.radius*2, 0, Math.PI*2);
         ctx.fill();
         
-        // Сам нейрон
+        
         ctx.fillStyle = node.color;
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI*2);
         ctx.fill();
         
-        // Активация (пульсация)
         if(node.pulse > 0){
           ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 2;
@@ -187,23 +185,22 @@
           node.pulse -= 0.1 * animationSpeed;
         }
         
-        // Текст (уровень активации)
         ctx.fillStyle = 'white';
         ctx.font = '12px monospace';
         ctx.textAlign = 'center';
         ctx.fillText(node.activation.toFixed(1), node.x, node.y + 4);
         
-        // Движение
+     
         node.x += node.vx;
         node.y += node.vy;
         
-        // Отталкивание от краёв
+       
         if(node.x < node.radius) node.vx = Math.abs(node.vx);
         if(node.x > width - node.radius) node.vx = -Math.abs(node.vx);
         if(node.y < node.radius) node.vy = Math.abs(node.vy);
         if(node.y > height - node.radius) node.vy = -Math.abs(node.vy);
         
-        // Затухание скорости
+        
         node.vx *= 0.95;
         node.vy *= 0.95;
       });
@@ -217,19 +214,17 @@
       randomNode.activation = 1;
       randomNode.pulse = 1;
       
-      // Активировать связи от этого нейрона
       connections
         .filter(conn => conn.from === randomNode)
         .forEach(conn => {
           conn.active = true;
           conn.signalProgress = 0;
           
-          // Активировать целевой нейрон
           setTimeout(() => {
             conn.to.activation = Math.min(1, conn.to.activation + conn.weight);
             conn.to.pulse = 0.5;
             
-            // Распространение дальше
+           
             if(conn.to.layer < layers-1){
               connections
                 .filter(c => c.from === conn.to)
@@ -243,13 +238,13 @@
     }
     
     function trainNetwork(){
-      // "Обучение" - изменение весов
+      
       connections.forEach(conn => {
         conn.weight += (Math.random()*0.4 - 0.2);
         conn.weight = Math.max(-1, Math.min(1, conn.weight));
       });
       
-      // Добавить немного хаоса
+      
       nodes.forEach(node => {
         node.vx += (Math.random()-0.5)*2;
         node.vy += (Math.random()-0.5)*2;
@@ -261,9 +256,9 @@
       requestAnimationFrame(animate);
     }
     
-    // Обработчики событий
+    
     document.getElementById('addLayer').addEventListener('click', () => {
-      // Добавить новый слой
+      
       const newLayerIndex = Math.floor(Math.random()*(layers-1)) + 1;
       nodes.forEach(node => {
         if(node.layer >= newLayerIndex){
@@ -274,7 +269,7 @@
     });
     
     document.getElementById('addNode').addEventListener('click', () => {
-      // Добавить случайный нейрон
+      
       const layer = Math.floor(Math.random()*layers);
       const x = (layer+1) * (width/(layers+1));
       const y = Math.random()*height;
@@ -298,13 +293,12 @@
       animationSpeed = parseInt(e.target.value);
     });
     
-    // Интерактивность
+    
     canvas.addEventListener('click', (e) => {
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       
-      // Поиск ближайшего нейрона
       let closest = null;
       let minDist = Infinity;
       
@@ -321,7 +315,7 @@
         closest.pulse = 1;
         activateRandom();
       } else {
-        // Создать новый нейрон
+       
         const layer = Math.floor((x / width) * layers);
         nodes.push({
           x, y,
@@ -340,7 +334,7 @@
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       
-      // Отталкивание нейронов
+     
       nodes.forEach(node => {
         const dx = node.x - x;
         const dy = node.y - y;
@@ -353,16 +347,16 @@
       });
     });
     
-    // Инициализация и запуск
+ 
     initNetwork();
     animate();
     
-    // Периодическая активация
+    
     setInterval(() => {
       if(Math.random() < 0.3) activateRandom();
     }, 1000);
     
-    // Адаптивность
+   
     window.addEventListener('resize', () => {
       width = canvas.width = canvas.offsetWidth;
       height = canvas.height = canvas.offsetHeight;
@@ -370,4 +364,5 @@
     });
   </script>
 </body>
+
 </html>
