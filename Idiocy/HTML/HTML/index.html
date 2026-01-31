@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>САМАЯ ТУПАЯ СТРАНИЦА В МИРЕ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Comic Sans MS", "Papyrus", "Impact", sans-serif;
+            background: repeating-linear-gradient(
+                45deg,
+                #ff00ff,
+                #ff00ff 10px,
+                #00ffff 10px,
+                #00ffff 20px
+            );
+            color: yellow;
+            text-shadow: 3px 3px 0 red, -3px -3px 0 blue;
+            min-height: 100vh;
+            overflow-x: hidden;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><text x="8" y="24" font-size="20">💩</text></svg>'), auto;
+        }
+        
+        .blink {
+            animation: blink 0.3s infinite;
+            font-size: 48px;
+            text-align: center;
+            margin: 20px;
+        }
+        
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        .marquee-container {
+            background: lime;
+            padding: 10px;
+            border: 8px dotted orange;
+            margin: 20px;
+            transform: rotate(2deg);
+        }
+        
+        .marquee {
+            font-size: 24px;
+            color: red;
+            white-space: nowrap;
+        }
+        
+        .spinning {
+            display: block;
+            margin: 30px auto;
+            animation: spin 1s linear infinite;
+            font-size: 80px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="40" fill="yellow"/><text x="50" y="55" text-anchor="middle" font-size="40">🤪</text></svg>');
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.5); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        
+        .rainbow-text {
+            background: linear-gradient(
+                to right,
+                red,
+                orange,
+                yellow,
+                lime,
+                cyan,
+                blue,
+                violet
+            );
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px;
+        }
+        
+        .dancing-letters {
+            font-size: 40px;
+            text-align: center;
+            margin: 30px;
+        }
+        
+        .dancing-letters span {
+            display: inline-block;
+            animation: dance 0.5s infinite alternate;
+        }
+        
+        .dancing-letters span:nth-child(odd) {
+            animation-delay: 0.1s;
+        }
+        
+        @keyframes dance {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-20px) rotate(10deg); }
+        }
+        
+        .ugly-button {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 30px;
+            font-size: 24px;
+            background: repeating-linear-gradient(
+                45deg,
+                #ff0000,
+                #ff0000 5px,
+                #ffff00 5px,
+                #ffff00 10px
+            );
+            border: 6px ridge purple;
+            border-radius: 50px 0 50px 0;
+            color: white;
+            text-shadow: 2px 2px 0 black;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .ugly-button:hover {
+            transform: skewX(20deg) scale(1.2);
+            background: repeating-linear-gradient(
+                -45deg,
+                #00ff00,
+                #00ff00 5px,
+                #0000ff 5px,
+                #0000ff 10px
+            );
+        }
+        
+        .moving-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><text x="25" y="35" font-size="30" text-anchor="middle">🤡</text></svg>'),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><text x="25" y="35" font-size="30" text-anchor="middle">👾</text></svg>');
+            background-size: 50px 50px;
+            animation: move-bg 10s linear infinite;
+            opacity: 0.3;
+        }
+        
+        @keyframes move-bg {
+            0% { background-position: 0 0, 25px 25px; }
+            100% { background-position: 100px 100px, 125px 125px; }
+        }
+        
+        .counter {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            background: white;
+            color: black;
+            padding: 10px;
+            border: 3px solid red;
+            border-radius: 10px;
+        }
+        
+        .auto-playing-audio {
+            display: none;
+        }
+        
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: pink;
+            border: 10px double green;
+            padding: 20px;
+            z-index: 1000;
+            animation: shake 0.5s infinite;
+            display: none;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            25% { transform: translate(-50%, -50%) rotate(5deg); }
+            75% { transform: translate(-50%, -50%) rotate(-5deg); }
+        }
+        
+        .cursor-trail {
+            position: fixed;
+            pointer-events: none;
+            font-size: 20px;
+            z-index: 9999;
+        }
+        
+        .flashing-border {
+            border: 15px solid;
+            animation: border-flash 0.5s infinite;
+            margin: 10px;
+            padding: 10px;
+        }
+        
+        @keyframes border-flash {
+            0% { border-color: red; }
+            25% { border-color: yellow; }
+            50% { border-color: lime; }
+            75% { border-color: blue; }
+            100% { border-color: red; }
+        }
+        
+        .random-fact {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            max-width: 300px;
+        }
+        
+        /* Самый тупой футер в истории */
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: black;
+            color: white;
+            text-align: center;
+            padding: 5px;
+            font-size: 10px;
+            z-index: 100;
+            border-top: 5px wavy yellow;
+        }
+        
+        /* Новые стили для вопроса дня */
+        .question-container {
+            position: relative;
+            margin: 40px auto;
+            padding: 30px;
+            background: linear-gradient(45deg, #ff0000, #ffff00);
+            border: 15px ridge #00ff00;
+            border-radius: 50px;
+            text-align: center;
+            max-width: 800px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .question-title {
+            font-size: 42px;
+            color: #0000ff;
+            text-shadow: 4px 4px 0 #ffffff;
+            margin-bottom: 20px;
+        }
+        
+        .question-text {
+            font-size: 60px;
+            color: #ffffff;
+            text-shadow: 3px 3px 0 #000000;
+            margin-bottom: 30px;
+            animation: glitch 1s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-3px, 3px); }
+            40% { transform: translate(-3px, -3px); }
+            60% { transform: translate(3px, 3px); }
+            80% { transform: translate(3px, -3px); }
+            100% { transform: translate(0); }
+        }
+        
+        .buttons-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-top: 40px;
+            min-height: 100px;
+        }
+        
+        .runaway-button {
+            position: absolute;
+            padding: 20px 40px;
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff0000, #880000);
+            border: 8px dashed #ffff00;
+            color: white;
+            cursor: pointer;
+            transition: all 0.1s;
+            z-index: 50;
+            text-shadow: 2px 2px 0 #000000;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #ff0000;
+        }
+        
+        .yes-button {
+            position: relative;
+            padding: 20px 60px;
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ff00, #008800);
+            border: 8px solid #ffff00;
+            color: white;
+            cursor: pointer;
+            z-index: 10;
+            text-shadow: 2px 2px 0 #000000;
+            border-radius: 15px;
+            animation: bounce 1s infinite alternate;
+        }
+        
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
+        }
+        
+        .answer-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 72px;
+            color: #ff0000;
+            text-shadow: 5px 5px 0 #000000;
+            background: rgba(255, 255, 0, 0.9);
+            padding: 40px;
+            border: 20px double #ff0000;
+            z-index: 2000;
+            display: none;
+            animation: spinText 2s linear infinite;
+        }
+        
+        @keyframes spinText {
+            0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.3); }
+            100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
+        }
+        
+        .yes-answer {
+            font-size: 64px;
+            color: #00ff00;
+            text-shadow: 5px 5px 0 #000000;
+            background: rgba(255, 0, 255, 0.9);
+            border: 20px dotted #00ff00;
+            animation: rainbow 1s infinite;
+        }
+        
+        @keyframes rainbow {
+            0% { color: #ff0000; border-color: #ff0000; }
+            25% { color: #ffff00; border-color: #ffff00; }
+            50% { color: #00ff00; border-color: #00ff00; }
+            75% { color: #00ffff; border-color: #00ffff; }
+            100% { color: #ff00ff; border-color: #ff00ff; }
+        }
+        
+        .fart-sound {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Движущийся фон из смайликов -->
+    <div class="moving-background"></div>
+    
+    <!-- Раздражающий счётчик кликов -->
+    <div class="counter" id="clickCounter">Кликов: 0</div>
+    
+    <!-- Мигающий заголовок (самое раздражающее) -->
+    <h1 class="blink">ПОЗДРАВЛЯЮ! ВЫ НАШЛИ САМУЮ ТУПУЮ СТРАНИЦУ!</h1>
+    
+    <!-- Бегущая строка (несколько) -->
+    <div class="marquee-container">
+        <marquee class="marquee" behavior="alternate" scrollamount="15">
+            ⚠️ ВНИМАНИЕ! ЭТА СТРАНИЦА ОЧЕНЬ ТУПАЯ! ⚠️
+        </marquee>
+        <marquee class="marquee" behavior="alternate" scrollamount="20" direction="right">
+            🤪 ТУПОЙ ДИЗАЙН 🤪 ТУПЫЕ АНИМАЦИИ 🤪 ТУПЫЕ ЦВЕТА 🤪
+        </marquee>
+    </div>
+    
+    <!-- ВРАЩАЮЩИЙСЯ СМАЙЛИК -->
+    <div class="spinning"></div>
+    
+    <!-- ВОПРОС ДНЯ -->
+    <div class="question-container">
+        <div class="question-title">ВОПРОС ДНЯ:</div>
+        <div class="question-text">СОСАЛ?</div>
+        <div class="buttons-container" id="buttonsContainer">
+            <!-- Убегающая кнопка "НЕТ" -->
+            <button class="runaway-button" id="runawayNoBtn">НЕТ</button>
+            <!-- Кнопка "ДА" -->
+            <button class="yes-button" id="yesBtn">ДА</button>
+        </div>
+    </div>
+    
+    <!-- ОТВЕТЫ -->
+    <div class="answer-text" id="piderasAnswer">ПИДОРА ОТВЕТ!</div>
+    <div class="answer-text yes-answer" id="yesAnswer">Я ТАК И ЗНАЛ!</div>
+    
+    <!-- Радужный текст -->
+    <div class="rainbow-text">КАЖДАЯ СЕКУНДА ПРОСМОТРА УМЕНЬШАЕТ ВАШ IQ НА 1</div>
+    
+    <!-- Танцующие буквы -->
+    <div class="dancing-letters">
+        <span>Т</span><span>У</span><span>П</span><span>И</span><span>З</span><span>Н</span><span>А</span>
+        <span>!</span><span>!</span><span>!</span>
+    </div>
+    
+    <!-- Самая уродливая кнопка -->
+    <button class="ugly-button" id="stupidButton">НАЖМИ МЕНЯ! (НЕ НАЖИМАЙ!)</button>
+    
+    <!-- Мигающая рамка с текстом -->
+    <div class="flashing-border">
+        <h2 style="text-align: center;">ЗДЕСЬ МОГЛА БЫ БЫТЬ ВАША РЕКЛАМА<br>НО ТУТ ТОЛЬКО ЭТОЙ ТУПОЙ ТЕКСТ</h2>
+    </div>
+    
+    <!-- Дополнительный мигающий текст -->
+    <p class="blink" style="font-size: 18px; margin-top: 30px;">
+        ЭТА СТРАНИЦА СОЗДАНА С ПОМОЩЬЮ КОМБИНАЦИИ COMIC SANS, PAPYRUS И УЖАСНЫХ ЦВЕТОВ
+    </p>
+    
+    <!-- Случайный "факт" -->
+    <div class="random-fact" id="randomFact">
+        <strong>"Факт":</strong> Если смотреть на эту страницу больше 5 минут, можно получить эпилепсию.
+    </div>
+    
+    <!-- Автовоспроизводящийся звук (тихий) -->
+    <audio class="auto-playing-audio" id="stupidAudio" loop>
+        <source src="https://assets.mixkit.co/active_storage/sfx/286/286-preview.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Звук пердежа для кнопки "НЕТ" -->
+    <audio class="fart-sound" id="fartSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-cartoon-fart-bleep-1036.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Всплывающее окно -->
+    <div class="popup" id="stupidPopup">
+        <h2 style="color: red;">ВАЖНОЕ СООБЩЕНИЕ!</h2>
+        <p>Вы только что потеряли 10 секунд своей жизни.</p>
+        <button onclick="closePopup()" style="padding: 5px; margin-top: 10px;">Закрыть (не работает)</button>
+    </div>
+    
+    <!-- Самый тупой футер -->
+    <footer>
+        © 2023 САМАЯ ТУПАЯ СТРАНИЦА В МИРЕ. ВСЕ ПРАВА НИЧЬИ. ДИЗАЙН: ОБЕЗЬЯНА С КЛАВИАТУРОЙ.
+        <br>
+        ЭТА СТРАНИЦА НЕ ОПТИМИЗИРОВАНА ДЛЯ ЧЕГО-ЛИБО. НЕ РАБОТАЕТ В IE6. НЕ ПЫТАЙТЕСЬ ЭТО ИСПРАВИТЬ.
+    </footer>
+    
+    <script>
+        // Счётчик кликов
+        let clickCount = 0;
+        const clickCounter = document.getElementById('clickCounter');
+        
+        // Убегающая кнопка "НЕТ"
+        const runawayNoBtn = document.getElementById('runawayNoBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const piderasAnswer = document.getElementById('piderasAnswer');
+        const yesAnswer = document.getElementById('yesAnswer');
+        const fartSound = document.getElementById('fartSound');
+        const buttonsContainer = document.getElementById('buttonsContainer');
+        
+        // Позиционируем кнопку "НЕТ" случайно при загрузке
+        positionRunawayButton();
+        
+        // Убегание кнопки "НЕТ" при наведении
+        runawayNoBtn.addEventListener('mouseover', function() {
+            // Проигрываем звук пердежа
+            fartSound.currentTime = 0;
+            fartSound.volume = 0.7;
+            fartSound.play().catch(e => console.log("Не удалось воспроизвести звук пердежа"));
+            
+            // Убегаем
+            positionRunawayButton();
+            
+            // Меняем внешний вид
+            this.style.background = `linear-gradient(45deg, ${getRandomColor()}, ${getRandomColor()})`;
+            this.style.borderColor = getRandomColor();
+            this.style.color = getRandomColor();
+            
+            // Немного двигаем кнопку "ДА"
+            yesBtn.style.transform = `translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px)`;
+        });
+        
+        // Обработчик клика на кнопку "НЕТ" (если удалось нажать)
+        runawayNoBtn.addEventListener('click', function() {
+            // Показываем ответ
+            piderasAnswer.style.display = 'block';
+            
+            // Делаем кнопку огромной и неподвижной
+            this.style.fontSize = '50px';
+            this.style.padding = '40px 80px';
+            this.style.position = 'fixed';
+            this.style.top = '50%';
+            this.style.left = '50%';
+            this.style.transform = 'translate(-50%, -50%)';
+            this.style.zIndex = '2001';
+            this.textContent = 'А ТЫ НАСТОЙЧИВЫЙ!';
+            
+            // Прячем ответ через 3 секунды
+            setTimeout(() => {
+                piderasAnswer.style.display = 'none';
+                this.style.display = 'none';
+                
+                // Создаём новую убегающую кнопку через 2 секунды
+                setTimeout(() => {
+                    createNewRunawayButton();
+                }, 2000);
+            }, 3000);
+            
+            // Увеличиваем счётчик кликов
+            clickCount += 10;
+            clickCounter.textContent = `Кликов: ${clickCount}`;
+        });
+        
+        // Обработчик клика на кнопку "ДА"
+        yesBtn.addEventListener('click', function() {
+            // Показываем ответ
+            yesAnswer.style.display = 'block';
+            
+            // Делаем кнопку ещё больше
+            this.style.fontSize = '48px';
+            this.style.padding = '30px 80px';
+            this.style.animation = 'rainbow 0.5s infinite, bounce 0.5s infinite alternate';
+            
+            // Проигрываем тупой звук
+            playRandomSound();
+            
+            // Прячем ответ через 3 секунды
+            setTimeout(() => {
+                yesAnswer.style.display = 'none';
+                this.style.fontSize = '32px';
+                this.style.padding = '20px 60px';
+                this.style.animation = 'bounce 1s infinite alternate';
+            }, 3000);
+            
+            // Увеличиваем счётчик кликов
+            clickCount += 5;
+            clickCounter.textContent = `Кликов: ${clickCount}`;
+        });
+        
+        // Функция для позиционирования убегающей кнопки
+        function positionRunawayButton() {
+            const containerRect = buttonsContainer.getBoundingClientRect();
+            const buttonWidth = runawayNoBtn.offsetWidth;
+            const buttonHeight = runawayNoBtn.offsetHeight;
+            
+            // Случайная позиция в пределах контейнера
+            const maxX = containerRect.width - buttonWidth;
+            const maxY = containerRect.height - buttonHeight;
+            
+            const randomX = Math.max(0, Math.random() * maxX);
+            const randomY = Math.max(0, Math.random() * maxY);
+            
+            runawayNoBtn.style.left = `${randomX}px`;
+            runawayNoBtn.style.top = `${randomY}px`;
+        }
+        
+        // Функция для создания новой убегающей кнопки
+        function createNewRunawayButton() {
+            // Создаём новую кнопку
+            const newButton = document.createElement('button');
+            newButton.className = 'runaway-button';
+            newButton.id = 'runawayNoBtn';
+            newButton.textContent = 'НЕТ';
+            buttonsContainer.appendChild(newButton);
+            
+            // Назначаем обработчики
+            newButton.addEventListener('mouseover', function() {
+                fartSound.currentTime = 0;
+                fartSound.volume = 0.7;
+                fartSound.play().catch(e => console.log("Не удалось воспроизвести звук пердежа"));
+                
+                const containerRect = buttonsContainer.getBoundingClientRect();
+                const buttonWidth = this.offsetWidth;
+                const buttonHeight = this.offsetHeight;
+                const maxX = containerRect.width - buttonWidth;
+                const maxY = containerRect.height - buttonHeight;
+                const randomX = Math.max(0, Math.random() * maxX);
+                const randomY = Math.max(0, Math.random() * maxY);
+                
+                this.style.left = `${randomX}px`;
+                this.style.top = `${randomY}px`;
+                this.style.background = `linear-gradient(45deg, ${getRandomColor()}, ${getRandomColor()})`;
+                this.style.borderColor = getRandomColor();
+                this.style.color = getRandomColor();
+                
+                yesBtn.style.transform = `translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px)`;
+            });
+            
+            newButton.addEventListener('click', function() {
+                piderasAnswer.style.display = 'block';
+                this.style.fontSize = '50px';
+                this.style.padding = '40px 80px';
+                this.style.position = 'fixed';
+                this.style.top = '50%';
+                this.style.left = '50%';
+                this.style.transform = 'translate(-50%, -50%)';
+                this.style.zIndex = '2001';
+                this.textContent = 'А ТЫ НАСТОЙЧИВЫЙ!';
+                
+                setTimeout(() => {
+                    piderasAnswer.style.display = 'none';
+                    this.style.display = 'none';
+                    
+                    setTimeout(() => {
+                        createNewRunawayButton();
+                    }, 2000);
+                }, 3000);
+                
+                clickCount += 10;
+                clickCounter.textContent = `Кликов: ${clickCount}`;
+            });
+            
+            // Позиционируем новую кнопку
+            setTimeout(() => {
+                positionRunawayButton.call({ offsetWidth: newButton.offsetWidth, offsetHeight: newButton.offsetHeight });
+            }, 100);
+        }
+        
+        document.body.addEventListener('click', function() {
+            clickCount++;
+            clickCounter.textContent = `Кликов: ${clickCount}`;
+            
+            // Меняем цвет счётчика случайным образом
+            clickCounter.style.backgroundColor = getRandomColor();
+            clickCounter.style.color = getRandomColor();
+            
+            // Каждый 5-й клик - показываем попап
+            if (clickCount % 5 === 0) {
+                showPopup();
+            }
+            
+            // Каждый 10-й клик - меняем курсор
+            if (clickCount % 10 === 0) {
+                document.body.style.cursor = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><text x="8" y="24" font-size="20">${getRandomEmoji()}</text></svg>'), auto`;
+            }
+        });
+        
+        // Следим за курсором и оставляем след
+        document.addEventListener('mousemove', function(e) {
+            if (Math.random() > 0.7) { // 30% chance
+                createCursorTrail(e.clientX, e.clientY);
+            }
+        });
+        
+        function createCursorTrail(x, y) {
+            const trail = document.createElement('div');
+            trail.className = 'cursor-trail';
+            trail.textContent = getRandomEmoji();
+            trail.style.left = (x + Math.random() * 20 - 10) + 'px';
+            trail.style.top = (y + Math.random() * 20 - 10) + 'px';
+            trail.style.color = getRandomColor();
+            trail.style.fontSize = (15 + Math.random() * 20) + 'px';
+            
+            document.body.appendChild(trail);
+            
+            // Удаляем след через время
+            setTimeout(() => {
+                if (trail.parentNode) {
+                    trail.parentNode.removeChild(trail);
+                }
+            }, 1000);
+        }
+        
+        // Работа уродливой кнопки
+        document.getElementById('stupidButton').addEventListener('click', function() {
+            // Меняем текст кнопки
+            const texts = [
+                "Я ЖЕ ГОВОРИЛ НЕ НАЖИМАТЬ!",
+                "ЗАЧЕМ ТЫ ЭТО СДЕЛАЛ?",
+                "ОСТАНОВИСЬ!",
+                "СЕРЬЁЗНО, ХВАТИТ!",
+                "ПОЗДРАВЛЯЮ, ТЫ ТУПОЙ!",
+                "ЕЩЁ РАЗ НАЖМЁШЬ - СЛОМАЕТСЯ!",
+                "ЭТО НЕ ШУТКА!",
+                "НУ ВСЁ, ТЕПЕРЬ СЛОМАЛОСЬ!",
+                "ШУТКА, ВСЁ РАБОТАЕТ!",
+                "НАЖМИ ЕЩЁ РАЗ, Я НАСМЕШУСЬ!"
+            ];
+            this.textContent = texts[Math.floor(Math.random() * texts.length)];
+            
+            // Меняем размер случайно
+            this.style.fontSize = (15 + Math.random() * 30) + 'px';
+            
+            // Вращаем кнопку
+            this.style.transform = `rotate(${Math.random() * 360}deg) skewX(${Math.random() * 30}deg)`;
+            
+            // Проигрываем звук
+            playRandomSound();
+            
+            // Создаём всплывающее окно
+            if (Math.random() > 0.5) {
+                showPopup();
+            }
+        });
+        
+        function showPopup() {
+            const popup = document.getElementById('stupidPopup');
+            popup.style.display = 'block';
+            
+            // Автоматически закрываем через случайное время
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 2000 + Math.random() * 3000);
+        }
+        
+        function closePopup() {
+            // Эта функция не закрывает попап, а делает что-то тупое
+            alert("Я же сказал, что не работает! Ха-ха!");
+            
+            // Меняем местами буквы в заголовке
+            const title = document.querySelector('.blink');
+            title.textContent = title.textContent.split('').reverse().join('');
+            
+            // Снова показываем попап
+            setTimeout(showPopup, 500);
+        }
+        
+        // Меняем случайный "факт" каждые 10 секунд
+        const facts = [
+            "Курицы-то не настоящие. Их правительство подменило в 1987 году.",
+            "Если кричать на кактус, он вырастет кривым.",
+            "97% людей дышат кислородом. Остальные 3% - читер.",
+            "Банан - это ягода, а клубника - нет. Ваша жизнь - ложь.",
+            "Этот текст меняется сам по себе. Вы ничего не можете с этим сделать.",
+            "Если прочитать этот факт вслух, он станет правдой.",
+            "Вы сейчас дышите вручную. Спасибо, что напомнил.",
+            "Ваш мозг прочитал это своим голосом. Он красивый.",
+            "Это не факт. Я просто хотел вашего внимания.",
+            "Поздравляю! Вы прочитали этот бесполезный текст!"
+        ];
+        
+        setInterval(() => {
+            document.getElementById('randomFact').innerHTML = 
+                `<strong>"Факт":</strong> ${facts[Math.floor(Math.random() * facts.length)]}`;
+        }, 10000);
+        
+        // Проигрываем случайные звуки иногда
+        function playRandomSound() {
+            const audio = document.getElementById('stupidAudio');
+            audio.volume = 0.1;
+            
+            // Случайно начинаем или останавливаем
+            if (Math.random() > 0.5) {
+                if (audio.paused) {
+                    audio.play().catch(e => console.log("Не удалось воспроизвести звук:", e));
+                } else {
+                    audio.pause();
+                }
+            }
+        }
+        
+        // Случайные цвета
+        function getRandomColor() {
+            const colors = [
+                '#FF0000', '#00FF00', '#0000FF', '#FFFF00', 
+                '#FF00FF', '#00FFFF', '#FF8800', '#8800FF',
+                '#FF0088', '#88FF00', '#0088FF', '#FFFFFF'
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        // Случайные эмодзи
+        function getRandomEmoji() {
+            const emojis = ['🤡', '👾', '💩', '🤪', '🦄', '🍕', '🎈', '🦆', '🍩', '👑', '🌈', '🚨'];
+            return emojis[Math.floor(Math.random() * emojis.length)];
+        }
+        
+        // Периодически меняем что-нибудь на странице
+        setInterval(() => {
+            // Меняем цвет фона
+            document.body.style.background = 
+                `repeating-linear-gradient(${Math.random() * 360}deg,
+                ${getRandomColor()},
+                ${getRandomColor()} 10px,
+                ${getRandomColor()} 10px,
+                ${getRandomColor()} 20px)`;
+            
+            // Иногда меняем направление бегущих строк
+            if (Math.random() > 0.7) {
+                const marquees = document.querySelectorAll('.marquee');
+                marquees.forEach(marquee => {
+                    marquee.direction = marquee.direction === 'left' ? 'right' : 'left';
+                    marquee.scrollAmount = 5 + Math.random() * 20;
+                });
+            }
+            
+            // Иногда меняем текст вопроса
+            if (Math.random() > 0.9) {
+                const questionText = document.querySelector('.question-text');
+                const alternatives = ['СОСАЛ?', 'ЛИЗАЛ?', 'КУСАЛ?', 'ЖРАЛ?', 'ПИЛ?', 'СПАЛ?', 'ПИСАЛ?'];
+                questionText.textContent = alternatives[Math.floor(Math.random() * alternatives.length)];
+            }
+        }, 5000);
+        
+        // При загрузке страницы
+        window.addEventListener('load', function() {
+            // Показываем алерт с тупым сообщением
+            setTimeout(() => {
+                alert("ДОБРО ПОЖАЛОВАТЬ НА САМУЮ ТУПУЮ СТРАНИЦУ!\n\nЗакройте её, пока не поздно!");
+            }, 1000);
+            
+            // Начинаем тихо проигрывать звук
+            setTimeout(() => {
+                const audio = document.getElementById('stupidAudio');
+                audio.volume = 0.05;
+                audio.play().catch(e => console.log("Звук не воспроизводится автоматически из-за политики браузера"));
+            }, 2000);
+        });
+        
+        // Делаем так, чтобы кнопка назад не работала
+        window.addEventListener('popstate', function(event) {
+            // Вместо того чтобы позволить уйти, показываем ещё попап
+            showPopup();
+            
+            // И добавляем в историю новое состояние
+            history.pushState(null, null, window.location.pathname);
+            
+            // Меняем заголовок страницы на что-то глупое
+            document.title = ["ТУПАЯ СТРАНИЦА", "НЕ УХОДИТЕ!", "ВЕРНИТЕСЬ!", "ХА-ХА, ПРОПАЛИ!"][Math.floor(Math.random() * 4)];
+        });
+        
+        // Инициализация
+        history.pushState(null, null, window.location.pathname);
+    </script>
+</body>
+</html>
