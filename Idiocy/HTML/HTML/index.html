@@ -231,7 +231,6 @@
             max-width: 300px;
         }
         
-        /* Самый тупой футер в истории */
         footer {
             position: fixed;
             bottom: 0;
@@ -245,7 +244,6 @@
             border-top: 5px wavy yellow;
         }
         
-        /* Новые стили для вопроса дня */
         .question-container {
             position: relative;
             margin: 40px auto;
@@ -378,16 +376,12 @@
     </style>
 </head>
 <body>
-    <!-- Движущийся фон из смайликов -->
     <div class="moving-background"></div>
     
-    <!-- Раздражающий счётчик кликов -->
     <div class="counter" id="clickCounter">Кликов: 0</div>
     
-    <!-- Мигающий заголовок (самое раздражающее) -->
     <h1 class="blink">ПОЗДРАВЛЯЮ! ВЫ НАШЛИ САМУЮ ТУПУЮ СТРАНИЦУ!</h1>
     
-    <!-- Бегущая строка (несколько) -->
     <div class="marquee-container">
         <marquee class="marquee" behavior="alternate" scrollamount="15">
             ⚠️ ВНИМАНИЕ! ЭТА СТРАНИЦА ОЧЕНЬ ТУПАЯ! ⚠️
@@ -397,70 +391,63 @@
         </marquee>
     </div>
     
-    <!-- ВРАЩАЮЩИЙСЯ СМАЙЛИК -->
     <div class="spinning"></div>
     
-    <!-- ВОПРОС ДНЯ -->
     <div class="question-container">
         <div class="question-title">ВОПРОС ДНЯ:</div>
         <div class="question-text">СОСАЛ?</div>
         <div class="buttons-container" id="buttonsContainer">
-            <!-- Убегающая кнопка "НЕТ" -->
+            
             <button class="runaway-button" id="runawayNoBtn">НЕТ</button>
-            <!-- Кнопка "ДА" -->
+           
             <button class="yes-button" id="yesBtn">ДА</button>
         </div>
     </div>
     
-    <!-- ОТВЕТЫ -->
+  
     <div class="answer-text" id="piderasAnswer">ПИДОРА ОТВЕТ!</div>
     <div class="answer-text yes-answer" id="yesAnswer">Я ТАК И ЗНАЛ!</div>
     
-    <!-- Радужный текст -->
     <div class="rainbow-text">КАЖДАЯ СЕКУНДА ПРОСМОТРА УМЕНЬШАЕТ ВАШ IQ НА 1</div>
     
-    <!-- Танцующие буквы -->
     <div class="dancing-letters">
         <span>Т</span><span>У</span><span>П</span><span>И</span><span>З</span><span>Н</span><span>А</span>
         <span>!</span><span>!</span><span>!</span>
     </div>
     
-    <!-- Самая уродливая кнопка -->
+    
     <button class="ugly-button" id="stupidButton">НАЖМИ МЕНЯ! (НЕ НАЖИМАЙ!)</button>
     
-    <!-- Мигающая рамка с текстом -->
+    
     <div class="flashing-border">
         <h2 style="text-align: center;">ЗДЕСЬ МОГЛА БЫ БЫТЬ ВАША РЕКЛАМА<br>НО ТУТ ТОЛЬКО ЭТОЙ ТУПОЙ ТЕКСТ</h2>
     </div>
     
-    <!-- Дополнительный мигающий текст -->
+
     <p class="blink" style="font-size: 18px; margin-top: 30px;">
         ЭТА СТРАНИЦА СОЗДАНА С ПОМОЩЬЮ КОМБИНАЦИИ COMIC SANS, PAPYRUS И УЖАСНЫХ ЦВЕТОВ
     </p>
-    
-    <!-- Случайный "факт" -->
+   
     <div class="random-fact" id="randomFact">
         <strong>"Факт":</strong> Если смотреть на эту страницу больше 5 минут, можно получить эпилепсию.
     </div>
     
-    <!-- Автовоспроизводящийся звук (тихий) -->
+  
     <audio class="auto-playing-audio" id="stupidAudio" loop>
         <source src="https://assets.mixkit.co/active_storage/sfx/286/286-preview.mp3" type="audio/mpeg">
     </audio>
     
-    <!-- Звук пердежа для кнопки "НЕТ" -->
     <audio class="fart-sound" id="fartSound">
         <source src="https://assets.mixkit.co/sfx/preview/mixkit-cartoon-fart-bleep-1036.mp3" type="audio/mpeg">
     </audio>
     
-    <!-- Всплывающее окно -->
     <div class="popup" id="stupidPopup">
         <h2 style="color: red;">ВАЖНОЕ СООБЩЕНИЕ!</h2>
         <p>Вы только что потеряли 10 секунд своей жизни.</p>
         <button onclick="closePopup()" style="padding: 5px; margin-top: 10px;">Закрыть (не работает)</button>
     </div>
     
-    <!-- Самый тупой футер -->
+    
     <footer>
         © 2023 САМАЯ ТУПАЯ СТРАНИЦА В МИРЕ. ВСЕ ПРАВА НИЧЬИ. ДИЗАЙН: ОБЕЗЬЯНА С КЛАВИАТУРОЙ.
         <br>
@@ -468,11 +455,11 @@
     </footer>
     
     <script>
-        // Счётчик кликов
+        
         let clickCount = 0;
         const clickCounter = document.getElementById('clickCounter');
         
-        // Убегающая кнопка "НЕТ"
+       
         const runawayNoBtn = document.getElementById('runawayNoBtn');
         const yesBtn = document.getElementById('yesBtn');
         const piderasAnswer = document.getElementById('piderasAnswer');
@@ -480,34 +467,32 @@
         const fartSound = document.getElementById('fartSound');
         const buttonsContainer = document.getElementById('buttonsContainer');
         
-        // Позиционируем кнопку "НЕТ" случайно при загрузке
+      
         positionRunawayButton();
         
-        // Убегание кнопки "НЕТ" при наведении
+        
         runawayNoBtn.addEventListener('mouseover', function() {
-            // Проигрываем звук пердежа
+           
             fartSound.currentTime = 0;
             fartSound.volume = 0.7;
             fartSound.play().catch(e => console.log("Не удалось воспроизвести звук пердежа"));
             
-            // Убегаем
+            
             positionRunawayButton();
             
-            // Меняем внешний вид
+          
             this.style.background = `linear-gradient(45deg, ${getRandomColor()}, ${getRandomColor()})`;
             this.style.borderColor = getRandomColor();
             this.style.color = getRandomColor();
             
-            // Немного двигаем кнопку "ДА"
+         
             yesBtn.style.transform = `translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px)`;
         });
         
-        // Обработчик клика на кнопку "НЕТ" (если удалось нажать)
         runawayNoBtn.addEventListener('click', function() {
-            // Показываем ответ
+           
             piderasAnswer.style.display = 'block';
             
-            // Делаем кнопку огромной и неподвижной
             this.style.fontSize = '50px';
             this.style.padding = '40px 80px';
             this.style.position = 'fixed';
@@ -517,36 +502,32 @@
             this.style.zIndex = '2001';
             this.textContent = 'А ТЫ НАСТОЙЧИВЫЙ!';
             
-            // Прячем ответ через 3 секунды
+            
             setTimeout(() => {
                 piderasAnswer.style.display = 'none';
                 this.style.display = 'none';
                 
-                // Создаём новую убегающую кнопку через 2 секунды
                 setTimeout(() => {
                     createNewRunawayButton();
                 }, 2000);
             }, 3000);
             
-            // Увеличиваем счётчик кликов
+            
             clickCount += 10;
             clickCounter.textContent = `Кликов: ${clickCount}`;
         });
         
-        // Обработчик клика на кнопку "ДА"
+        
         yesBtn.addEventListener('click', function() {
-            // Показываем ответ
+        
             yesAnswer.style.display = 'block';
             
-            // Делаем кнопку ещё больше
             this.style.fontSize = '48px';
             this.style.padding = '30px 80px';
             this.style.animation = 'rainbow 0.5s infinite, bounce 0.5s infinite alternate';
             
-            // Проигрываем тупой звук
             playRandomSound();
             
-            // Прячем ответ через 3 секунды
             setTimeout(() => {
                 yesAnswer.style.display = 'none';
                 this.style.fontSize = '32px';
@@ -554,18 +535,17 @@
                 this.style.animation = 'bounce 1s infinite alternate';
             }, 3000);
             
-            // Увеличиваем счётчик кликов
             clickCount += 5;
             clickCounter.textContent = `Кликов: ${clickCount}`;
         });
         
-        // Функция для позиционирования убегающей кнопки
+        
         function positionRunawayButton() {
             const containerRect = buttonsContainer.getBoundingClientRect();
             const buttonWidth = runawayNoBtn.offsetWidth;
             const buttonHeight = runawayNoBtn.offsetHeight;
             
-            // Случайная позиция в пределах контейнера
+            
             const maxX = containerRect.width - buttonWidth;
             const maxY = containerRect.height - buttonHeight;
             
@@ -576,16 +556,15 @@
             runawayNoBtn.style.top = `${randomY}px`;
         }
         
-        // Функция для создания новой убегающей кнопки
         function createNewRunawayButton() {
-            // Создаём новую кнопку
+
             const newButton = document.createElement('button');
             newButton.className = 'runaway-button';
             newButton.id = 'runawayNoBtn';
             newButton.textContent = 'НЕТ';
             buttonsContainer.appendChild(newButton);
             
-            // Назначаем обработчики
+            
             newButton.addEventListener('mouseover', function() {
                 fartSound.currentTime = 0;
                 fartSound.volume = 0.7;
@@ -632,7 +611,6 @@
                 clickCounter.textContent = `Кликов: ${clickCount}`;
             });
             
-            // Позиционируем новую кнопку
             setTimeout(() => {
                 positionRunawayButton.call({ offsetWidth: newButton.offsetWidth, offsetHeight: newButton.offsetHeight });
             }, 100);
@@ -642,24 +620,23 @@
             clickCount++;
             clickCounter.textContent = `Кликов: ${clickCount}`;
             
-            // Меняем цвет счётчика случайным образом
+           
             clickCounter.style.backgroundColor = getRandomColor();
             clickCounter.style.color = getRandomColor();
             
-            // Каждый 5-й клик - показываем попап
             if (clickCount % 5 === 0) {
                 showPopup();
             }
             
-            // Каждый 10-й клик - меняем курсор
+            
             if (clickCount % 10 === 0) {
                 document.body.style.cursor = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><text x="8" y="24" font-size="20">${getRandomEmoji()}</text></svg>'), auto`;
             }
         });
         
-        // Следим за курсором и оставляем след
+      
         document.addEventListener('mousemove', function(e) {
-            if (Math.random() > 0.7) { // 30% chance
+            if (Math.random() > 0.7) { 
                 createCursorTrail(e.clientX, e.clientY);
             }
         });
@@ -675,7 +652,7 @@
             
             document.body.appendChild(trail);
             
-            // Удаляем след через время
+            
             setTimeout(() => {
                 if (trail.parentNode) {
                     trail.parentNode.removeChild(trail);
@@ -683,9 +660,8 @@
             }, 1000);
         }
         
-        // Работа уродливой кнопки
         document.getElementById('stupidButton').addEventListener('click', function() {
-            // Меняем текст кнопки
+            
             const texts = [
                 "Я ЖЕ ГОВОРИЛ НЕ НАЖИМАТЬ!",
                 "ЗАЧЕМ ТЫ ЭТО СДЕЛАЛ?",
@@ -700,16 +676,15 @@
             ];
             this.textContent = texts[Math.floor(Math.random() * texts.length)];
             
-            // Меняем размер случайно
+            
             this.style.fontSize = (15 + Math.random() * 30) + 'px';
             
-            // Вращаем кнопку
+           
             this.style.transform = `rotate(${Math.random() * 360}deg) skewX(${Math.random() * 30}deg)`;
             
-            // Проигрываем звук
+           
             playRandomSound();
             
-            // Создаём всплывающее окно
             if (Math.random() > 0.5) {
                 showPopup();
             }
@@ -719,25 +694,21 @@
             const popup = document.getElementById('stupidPopup');
             popup.style.display = 'block';
             
-            // Автоматически закрываем через случайное время
             setTimeout(() => {
                 popup.style.display = 'none';
             }, 2000 + Math.random() * 3000);
         }
         
         function closePopup() {
-            // Эта функция не закрывает попап, а делает что-то тупое
+            
             alert("Я же сказал, что не работает! Ха-ха!");
             
-            // Меняем местами буквы в заголовке
             const title = document.querySelector('.blink');
             title.textContent = title.textContent.split('').reverse().join('');
             
-            // Снова показываем попап
             setTimeout(showPopup, 500);
         }
         
-        // Меняем случайный "факт" каждые 10 секунд
         const facts = [
             "Курицы-то не настоящие. Их правительство подменило в 1987 году.",
             "Если кричать на кактус, он вырастет кривым.",
@@ -756,12 +727,12 @@
                 `<strong>"Факт":</strong> ${facts[Math.floor(Math.random() * facts.length)]}`;
         }, 10000);
         
-        // Проигрываем случайные звуки иногда
+     
         function playRandomSound() {
             const audio = document.getElementById('stupidAudio');
             audio.volume = 0.1;
             
-            // Случайно начинаем или останавливаем
+            
             if (Math.random() > 0.5) {
                 if (audio.paused) {
                     audio.play().catch(e => console.log("Не удалось воспроизвести звук:", e));
@@ -771,7 +742,7 @@
             }
         }
         
-        // Случайные цвета
+    
         function getRandomColor() {
             const colors = [
                 '#FF0000', '#00FF00', '#0000FF', '#FFFF00', 
@@ -781,15 +752,15 @@
             return colors[Math.floor(Math.random() * colors.length)];
         }
         
-        // Случайные эмодзи
+        
         function getRandomEmoji() {
             const emojis = ['🤡', '👾', '💩', '🤪', '🦄', '🍕', '🎈', '🦆', '🍩', '👑', '🌈', '🚨'];
             return emojis[Math.floor(Math.random() * emojis.length)];
         }
         
-        // Периодически меняем что-нибудь на странице
+        
         setInterval(() => {
-            // Меняем цвет фона
+            
             document.body.style.background = 
                 `repeating-linear-gradient(${Math.random() * 360}deg,
                 ${getRandomColor()},
@@ -797,7 +768,6 @@
                 ${getRandomColor()} 10px,
                 ${getRandomColor()} 20px)`;
             
-            // Иногда меняем направление бегущих строк
             if (Math.random() > 0.7) {
                 const marquees = document.querySelectorAll('.marquee');
                 marquees.forEach(marquee => {
@@ -806,7 +776,7 @@
                 });
             }
             
-            // Иногда меняем текст вопроса
+          
             if (Math.random() > 0.9) {
                 const questionText = document.querySelector('.question-text');
                 const alternatives = ['СОСАЛ?', 'ЛИЗАЛ?', 'КУСАЛ?', 'ЖРАЛ?', 'ПИЛ?', 'СПАЛ?', 'ПИСАЛ?'];
@@ -814,14 +784,14 @@
             }
         }, 5000);
         
-        // При загрузке страницы
+        
         window.addEventListener('load', function() {
-            // Показываем алерт с тупым сообщением
+         
             setTimeout(() => {
                 alert("ДОБРО ПОЖАЛОВАТЬ НА САМУЮ ТУПУЮ СТРАНИЦУ!\n\nЗакройте её, пока не поздно!");
             }, 1000);
             
-            // Начинаем тихо проигрывать звук
+           
             setTimeout(() => {
                 const audio = document.getElementById('stupidAudio');
                 audio.volume = 0.05;
@@ -829,20 +799,18 @@
             }, 2000);
         });
         
-        // Делаем так, чтобы кнопка назад не работала
         window.addEventListener('popstate', function(event) {
-            // Вместо того чтобы позволить уйти, показываем ещё попап
+            
             showPopup();
             
-            // И добавляем в историю новое состояние
             history.pushState(null, null, window.location.pathname);
             
-            // Меняем заголовок страницы на что-то глупое
             document.title = ["ТУПАЯ СТРАНИЦА", "НЕ УХОДИТЕ!", "ВЕРНИТЕСЬ!", "ХА-ХА, ПРОПАЛИ!"][Math.floor(Math.random() * 4)];
         });
         
-        // Инициализация
+       
         history.pushState(null, null, window.location.pathname);
     </script>
 </body>
+
 </html>
