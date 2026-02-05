@@ -175,7 +175,7 @@
     </audio>
 
     <script>
-        // Создание пузырьков
+        
         function createBubbles() {
             const bubblesContainer = document.getElementById('bubbles');
             for (let i = 0; i < 50; i++) {
@@ -191,7 +191,7 @@
             }
         }
 
-        // Создание плавающих рыб
+     
         function createFish() {
             const aquarium = document.querySelector('.aquarium');
             const fishEmojis = ['🐠', '🐟', '🐡', '🦈', '🐙', '🦑'];
@@ -213,7 +213,7 @@
             }
         }
 
-        // Эффект мерцания
+       
         function trippyEffects() {
             const aquarium = document.querySelector('.aquarium');
             setInterval(() => {
@@ -225,7 +225,7 @@
             }, 1000);
         }
 
-        // Аудио управление
+     
         function toggleAudio() {
             const audio = document.getElementById('audio');
             const control = document.querySelector('.audio-control');
@@ -241,7 +241,7 @@
             }
         }
 
-        // Случайные всплывающие сообщения
+        
         function showRandomMessages() {
             const messages = [
                 "Хлеб дышит под водой!",
@@ -275,21 +275,21 @@
             }, 2000);
         }
 
-        // Инициализация всего
+      
         window.onload = function() {
             createBubbles();
             createFish();
             trippyEffects();
             showRandomMessages();
             
-            // Случайное изменение размера хлеба
+            
             setInterval(() => {
                 const bread = document.querySelector('.bread');
                 bread.style.fontSize = `${Math.random() * 10 + 12}vw`;
             }, 3000);
         };
 
-        // Эффект при клике
+        
         document.addEventListener('click', function(e) {
             const ripple = document.createElement('div');
             ripple.style.position = 'fixed';
@@ -311,7 +311,7 @@
             }, 1000);
         });
 
-        // Добавляем стиль для ripple
+       
         const style = document.createElement('style');
         style.textContent = `
             @keyframes ripple {
@@ -326,4 +326,5 @@
         document.head.appendChild(style);
     </script>
 </body>
+
 </html>
