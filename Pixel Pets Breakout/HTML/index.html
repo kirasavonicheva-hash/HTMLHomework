@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Pets Breakout</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ffe6f2 0%, #ffccdd 100%);
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+            user-select: none;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            padding: 15px;
+        }
+
+        #gameCanvas {
+            background-color: rgba(255, 240, 245, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 150, 180, 0.3);
+            border: 8px solid #ffb6d9;
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 3/4;
+            image-rendering: pixelated;
+        }
+
+        #ui {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            right: 25px;
+            color: #d95b8f;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            border: 4px solid #ffb6d9;
+        }
+
+        #startScreen, #gameOverScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 240, 245, 0.95);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #ff66a3;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0 #ffccdd;
+        }
+
+        h2 {
+            color: #d95b8f;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        p {
+            color: #ff66a3;
+            font-size: 1.2em;
+            margin-bottom: 25px;
+            max-width: 80%;
+            line-height: 1.4;
+        }
+
+        button {
+            background-color: #ff80bf;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 6px 0 #ff4da6;
+            transition: all 0.1s;
+        }
+
+        button:hover, button:active {
+            background-color: #ff66a3;
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 #ff4da6;
+        }
+
+        .controls {
+            margin-top: 20px;
+            color: #d95b8f;
+            font-size: 0.9em;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="ui">
+            <div>Очки: <span id="score">0</span></div>
+            <div>Жизни: <span id="lives">3</span></div>
+        </div>
+        
+        <canvas id="gameCanvas" width="480" height="640"></canvas>
+        
+        <div id="startScreen">
+            <h1>Pixel Pets Breakout</h1>
+            <p>Разбей все блоки мячиком!<br>Управляй платформой, касаясь экрана</p>
+            <button id="startButton">Начать игру</button>
+            <div class="controls">
+                Касайтесь левой/правой части экрана для управления
+            </div>
+        </div>
+        
+        <div id="gameOverScreen" class="hidden">
+            <h2>Игра окончена!</h2>
+            <p>Ваш счет: <span id="finalScore">0</span></p>
+            <button id="restartButton">Играть снова</button>
+        </div>
+    </div>
+
+    <script>
+        
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const livesElement = document.getElementById('lives');
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
+        const finalScoreElement = document.getElementById('finalScore');
+        
+        const width = canvas.width;
+        const height = canvas.height;
+     
+        let score = 0;
+        let lives = 3;
+        let gameRunning = false;
+        let animationId;
+        
+        const platform = {
+            width: 100,
+            height: 20,
+            x: width / 2 - 50,
+            y: height - 40,
+            speed: 10,
+            color: '#ff80bf'
+        };
+        
+        const ball = {
+            x: width / 2,
+            y: height / 2,
+            radius: 12,
+            speedX: 5,
+            speedY: -5,
+            color: '#ff66a3'
+        };
+        
+        const blocks = [];
+        const blockRowCount = 5;
+        const blockColumnCount = 8;
+        const blockWidth = 55;
+        const blockHeight = 25;
+        const blockPadding = 10;
+        const blockOffsetTop = 80;
+        const blockOffsetLeft = 30;
+        
+        function createBlocks() {
+            blocks.length = 0;
+            for (let c = 0; c < blockColumnCount; c++) {
+                blocks[c] = [];
+                for (let r = 0; r < blockRowCount; r++) {
+                    const colors = ['#ffb3d9', '#ff99cc', '#ff80bf', '#ff66b3', '#ff4da6'];
+                    
+                    blocks[c][r] = {
+                        x: c * (blockWidth + blockPadding) + blockOffsetLeft,
+                        y: r * (blockHeight + blockPadding) + blockOffsetTop,
+                        width: blockWidth,
+                        height: blockHeight,
+                        color: colors[r],
+                        visible: true
+                    };
+                }
+            }
+        }
+        
+        const pixelPets = [];
+        const petTypes = ['cat', 'dog', 'bunny'];
+        
+        function createPixelPets(count) {
+            pixelPets.length = 0;
+            for (let i = 0; i < count; i++) {
+                const type = petTypes[Math.floor(Math.random() * petTypes.length)];
+                const size = Math.random() * 20 + 15;
+                
+                pixelPets.push({
+                    x: Math.random() * (width - size),
+                    y: Math.random() * (height - size),
+                    size: size,
+                    type: type,
+                    speedX: (Math.random() - 0.5) * 0.8,
+                    speedY: (Math.random() - 0.5) * 0.8,
+                    color: `hsl(${Math.random() * 30 + 320}, 70%, 85%)`
+                });
+            }
+        }
+        
+        function drawPixelPet(pet) {
+            ctx.fillStyle = pet.color;
+            
+            if (pet.type === 'cat') {
+                ctx.fillRect(pet.x, pet.y + pet.size * 0.2, pet.size, pet.size * 0.6); // тело
+                ctx.fillRect(pet.x + pet.size * 0.8, pet.y + pet.size * 0.3, pet.size * 0.2, pet.size * 0.1); // хвост
+                ctx.fillRect(pet.x - pet.size * 0.2, pet.y, pet.size * 0.2, pet.size * 0.3); // уши
+                ctx.fillRect(pet.x - pet.size * 0.2, pet.y + pet.size * 0.5, pet.size * 0.2, pet.size * 0.3); // уши
+            } else if (pet.type === 'dog') {
+
+                ctx.fillRect(pet.x, pet.y + pet.size * 0.3, pet.size * 0.8, pet.size * 0.4); // тело
+                ctx.fillRect(pet.x + pet.size * 0.7, pet.y, pet.size * 0.3, pet.size * 0.3); // голова
+                ctx.fillRect(pet.x + pet.size * 0.9, pet.y + pet.size * 0.1, pet.size * 0.2, pet.size * 0.1); // ухо
+            } else {
+                
+                ctx.fillRect(pet.x, pet.y + pet.size * 0.3, pet.size * 0.7, pet.size * 0.5); // тело
+                ctx.fillRect(pet.x - pet.size * 0.1, pet.y, pet.size * 0.2, pet.size * 0.3); // уши
+                ctx.fillRect(pet.x + pet.size * 0.6, pet.y, pet.size * 0.2, pet.size * 0.3); // уши
+            }
+        }
+        
+        function updatePixelPets() {
+            for (const pet of pixelPets) {
+                pet.x += pet.speedX;
+                pet.y += pet.speedY;
+                
+                if (pet.x <= 0 || pet.x + pet.size >= width) {
+                    pet.speedX *= -1;
+                }
+                if (pet.y <= 0 || pet.y + pet.size >= height) {
+                    pet.speedY *= -1;
+                }
+            }
+        }
+        
+        function drawBackground() {
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, '#fff0f5');
+            gradient.addColorStop(1, '#ffe6f2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+            
+            for (const pet of pixelPets) {
+                drawPixelPet(pet);
+            }
+        }
+        
+        function drawPlatform() {
+            ctx.fillStyle = platform.color;
+            ctx.beginPath();
+            ctx.roundRect(platform.x, platform.y, platform.width, platform.height, 10);
+            ctx.fill();
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.roundRect(platform.x + 5, platform.y + 3, platform.width - 10, 6, 3);
+            ctx.fill();
+        }
+        
+        function drawBall() {
+            ctx.fillStyle = ball.color;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.beginPath();
+            ctx.arc(ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.3, ball.radius * 0.4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawBlocks() {
+            for (let c = 0; c < blockColumnCount; c++) {
+                for (let r = 0; r < blockRowCount; r++) {
+                    const block = blocks[c][r];
+                    if (block.visible) {
+                        ctx.fillStyle = block.color;
+                        ctx.beginPath();
+                        ctx.roundRect(block.x, block.y, block.width, block.height, 5);
+                        ctx.fill();
+                   
+                        ctx.strokeStyle = '#ff4da6';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+        
+        function update() {
+           
+            ball.x += ball.speedX;
+            ball.y += ball.speedY;
+            
+            if (ball.x + ball.radius > width || ball.x - ball.radius < 0) {
+                ball.speedX = -ball.speedX;
+            }
+            
+            if (ball.y - ball.radius < 0) {
+                ball.speedY = -ball.speedY;
+            }
+          
+            if (
+                ball.y + ball.radius > platform.y &&
+                ball.y - ball.radius < platform.y + platform.height &&
+                ball.x > platform.x &&
+                ball.x < platform.x + platform.width
+            ) {
+                const hitPoint = ball.x - (platform.x + platform.width / 2);
+                const angle = hitPoint / (platform.width / 2) * (Math.PI / 3); // Максимум 60 градусов
+                
+                ball.speedX = 7 * Math.sin(angle);
+                ball.speedY = -Math.abs(7 * Math.cos(angle));
+            }
+            
+     
+            if (ball.y - ball.radius > height) {
+                lives--;
+                livesElement.textContent = lives;
+                
+                if (lives <= 0) {
+                    gameOver();
+                    return;
+                }
+                
+               
+                resetBallAndPlatform();
+            }
+            
+            
+            for (let c = 0; c < blockColumnCount; c++) {
+                for (let r = 0; r < blockRowCount; r++) {
+                    const block = blocks[c][r];
+                    
+                    if (block.visible) {
+                        if (
+                            ball.x + ball.radius > block.x &&
+                            ball.x - ball.radius < block.x + block.width &&
+                            ball.y + ball.radius > block.y &&
+                            ball.y - ball.radius < block.y + block.height
+                        ) {
+                            ball.speedY = -ball.speedY;
+                            block.visible = false;
+                            score += 10;
+                            scoreElement.textContent = score;
+                            
+                            let blocksRemaining = 0;
+                            for (let c = 0; c < blockColumnCount; c++) {
+                                for (let r = 0; r < blockRowCount; r++) {
+                                    if (blocks[c][r].visible) blocksRemaining++;
+                                }
+                            }
+                            
+                            if (blocksRemaining === 0) {
+                                winGame();
+                            }
+                        }
+                    }
+                }
+            }
+            
+            updatePixelPets();
+        }
+        
+        function draw() {
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            
+            drawBackground();
+            
+          
+            drawBlocks();
+            
+            
+            drawPlatform();
+            
+        
+            drawBall();
+        }
+        
+        
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            update();
+            draw();
+            
+            animationId = requestAnimationFrame(gameLoop);
+        }
+        
+        
+        function resetBallAndPlatform() {
+            ball.x = width / 2;
+            ball.y = height / 2;
+            ball.speedX = 5 * (Math.random() > 0.5 ? 1 : -1);
+            ball.speedY = -5;
+            
+            platform.x = width / 2 - platform.width / 2;
+            platform.y = height - 40;
+        }
+        
+       
+        let touchStartX = 0;
+        
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
+            
+            if (touchX < width / 2) {
+              
+                platform.x -= platform.speed * 2;
+            } else {
+                
+                platform.x += platform.speed * 2;
+            }
+            
+           
+            if (platform.x < 0) platform.x = 0;
+            if (platform.x + platform.width > width) platform.x = width - platform.width;
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            if (!gameRunning) return;
+            e.preventDefault();
+            
+            const touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
+            platform.x = touchX - platform.width / 2;
+            
+          
+            if (platform.x < 0) platform.x = 0;
+            if (platform.x + platform.width > width) platform.x = width - platform.width;
+        });
+        
+       
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+            
+            if (e.key === 'ArrowLeft' || e.key === 'a') {
+                platform.x -= platform.speed * 2;
+                if (platform.x < 0) platform.x = 0;
+            } else if (e.key === 'ArrowRight' || e.key === 'd') {
+                platform.x += platform.speed * 2;
+                if (platform.x + platform.width > width) platform.x = width - platform.width;
+            }
+        });
+        
+        
+        function startGame() {
+            score = 0;
+            lives = 3;
+            scoreElement.textContent = score;
+            livesElement.textContent = lives;
+            
+            createBlocks();
+            createPixelPets(15);
+            resetBallAndPlatform();
+            
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            
+            gameRunning = true;
+            gameLoop();
+        }
+        
+        
+        function gameOver() {
+            gameRunning = false;
+            cancelAnimationFrame(animationId);
+            finalScoreElement.textContent = score;
+            gameOverScreen.classList.remove('hidden');
+        }
+        
+        function winGame() {
+            score += 1000;
+            scoreElement.textContent = score;
+            
+            setTimeout(() => {
+                alert(`Поздравляем! Вы выиграли!\nВаш счет: ${score}`);
+                startGame();
+            }, 100);
+        }
+        
+        startButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', startGame);
+        
+        createPixelPets(15);
+        drawBackground();
+        drawPlatform();
+        drawBall();
+        
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2;
+                if (h < 2 * r) r = h / 2;
+                this.beginPath();
+                this.moveTo(x + r, y);
+                this.arcTo(x + w, y, x + w, y + h, r);
+                this.arcTo(x + w, y + h, x, y + h, r);
+                this.arcTo(x, y + h, x, y, r);
+                this.arcTo(x, y, x + w, y, r);
+                this.closePath();
+                return this;
+            };
+        }
+    </script>
+</body>
+</html>
