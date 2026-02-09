@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Полный ИИ Помощник | AI Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Боковая панель -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <h1>AI Assistant</h1>
+            </div>
+            
+            <div class="user-info">
+                <div class="avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <h3 id="username">Пользователь</h3>
+                    <p id="user-status">Online</p>
+                </div>
+            </div>
+            
+            <nav class="main-nav">
+                <a href="#" class="nav-item active" data-tab="chat">
+                    <i class="fas fa-comments"></i>
+                    <span>Чат</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="files">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Файлы</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Настройки</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="history">
+                    <i class="fas fa-history"></i>
+                    <span>История</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="tools">
+                    <i class="fas fa-tools"></i>
+                    <span>Инструменты</span>
+                </a>
+            </nav>
+            
+            <div class="ai-status">
+                <div class="status-indicator active"></div>
+                <span>ИИ активен</span>
+            </div>
+            
+            <div class="quick-actions">
+                <h3>Быстрые действия</h3>
+                <button class="quick-btn" data-action="summary">
+                    <i class="fas fa-file-contract"></i>
+                    <span>Суммаризация</span>
+                </button>
+                <button class="quick-btn" data-action="translate">
+                    <i class="fas fa-language"></i>
+                    <span>Перевод</span>
+                </button>
+                <button class="quick-btn" data-action="code">
+                    <i class="fas fa-code"></i>
+                    <span>Код</span>
+                </button>
+                <button class="quick-btn" data-action="clear">
+                    <i class="fas fa-broom"></i>
+                    <span>Очистить чат</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Основной контент -->
+        <main class="main-content">
+            <!-- Заголовок и кнопки управления -->
+            <header class="content-header">
+                <div class="header-left">
+                    <h2 id="current-tab">Чат с ИИ</h2>
+                    <div class="ai-model-selector">
+                        <select id="model-select">
+                            <option value="gpt">GPT-4 модель</option>
+                            <option value="claude">Claude модель</option>
+                            <option value="gemini">Gemini модель</option>
+                            <option value="local">Локальная модель</option>
+                        </select>
+                        <span class="model-status" id="model-status">✓ Активна</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" id="new-chat">
+                        <i class="fas fa-plus"></i> Новый чат
+                    </button>
+                    <button class="header-btn" id="export-chat">
+                        <i class="fas fa-download"></i> Экспорт
+                    </button>
+                    <button class="header-btn" id="theme-toggle">
+                        <i class="fas fa-moon"></i> Тема
+                    </button>
+                </div>
+            </header>
+
+            <!-- Контейнер вкладок -->
+            <div class="tab-content">
+                <!-- Вкладка Чат -->
+                <div class="tab-pane active" id="chat-tab">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <!-- Сообщения будут здесь -->
+                        </div>
+                        
+                        <div class="chat-input-area">
+                            <div class="input-tools">
+                                <button class="tool-btn" id="voice-input" title="Голосовой ввод">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <button class="tool-btn" id="attach-file" title="Прикрепить файл">
+                                    <i class="fas fa-paperclip"></i>
+                                </button>
+                                <button class="tool-btn" id="image-input" title="Загрузить изображение">
+                                    <i class="fas fa-image"></i>
+                                </button>
+                                <input type="file" id="file-upload" accept=".txt,.pdf,.doc,.docx,.jpg,.png" hidden>
+                                <input type="file" id="image-upload" accept="image/*" hidden>
+                            </div>
+                            
+                            <div class="message-input">
+                                <textarea 
+                                    id="userInput" 
+                                    placeholder="Введите сообщение... (Shift+Enter для новой строки, Enter для отправки)" 
+                                    rows="1"
+                                ></textarea>
+                                <button id="sendButton" class="send-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="input-options">
+                                <label class="option">
+                                    <input type="checkbox" id="creative-mode" checked>
+                                    <span>Творческий режим</span>
+                                </label>
+                                <label class="option">
+                                    <input type="checkbox" id="save-history" checked>
+                                    <span>Сохранять историю</span>
+                                </label>
+                                <div class="char-count">
+                                    <span id="charCount">0</span>/4000
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-suggestions">
+                        <h4>Предложения для обсуждения:</h4>
+                        <div class="suggestions-grid">
+                            <button class="suggestion-btn" data-prompt="Напиши план для стартапа в сфере ИИ">
+                                <i class="fas fa-rocket"></i>
+                                <span>План для ИИ-стартапа</span>
+                            </button>
+                            <button class="suggestion-btn" data-prompt="Объясни квантовые вычисления простыми словами">
+                                <i class="fas fa-atom"></i>
+                                <span>Квантовые вычисления</span>
+                            </button>
+                            <button class="suggestion-btn" data-prompt="Напиши код для веб-приложения на React">
+                                <i class="fas fa-code"></i>
+                                <span>Код на React</span>
+                            </button>
+                            <button class="suggestion-btn" data-prompt="Помоги написать письмо с извинениями">
+                                <i class="fas fa-envelope"></i>
+                                <span>Письмо с извинениями</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка Файлы -->
+                <div class="tab-pane" id="files-tab">
+                    <div class="files-container">
+                        <div class="files-header">
+                            <h3>Мои файлы</h3>
+                            <button class="upload-btn" id="upload-files">
+                                <i class="fas fa-cloud-upload-alt"></i> Загрузить файлы
+                            </button>
+                        </div>
+                        
+                        <div class="files-grid" id="files-grid">
+                            <!-- Файлы будут загружаться здесь -->
+                            <div class="file-empty">
+                                <i class="fas fa-folder-open"></i>
+                                <p>Загрузите файлы для анализа ИИ</p>
+                                <button class="btn-primary" id="upload-first">Загрузить первый файл</button>
+                            </div>
+                        </div>
+                        
+                        <div class="file-actions">
+                            <h4>Действия с файлами:</h4>
+                            <div class="actions-grid">
+                                <button class="action-btn" data-action="summarize">
+                                    <i class="fas fa-file-contract"></i>
+                                    <span>Суммаризировать</span>
+                                </button>
+                                <button class="action-btn" data-action="translate-file">
+                                    <i class="fas fa-language"></i>
+                                    <span>Перевести</span>
+                                </button>
+                                <button class="action-btn" data-action="analyze">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <span>Проанализировать</span>
+                                </button>
+                                <button class="action-btn" data-action="extract">
+                                    <i class="fas fa-key"></i>
+                                    <span>Извлечь ключевые слова</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка Настройки -->
+                <div class="tab-pane" id="settings-tab">
+                    <div class="settings-container">
+                        <div class="settings-section">
+                            <h3><i class="fas fa-user-cog"></i> Профиль пользователя</h3>
+                            <div class="settings-form">
+                                <div class="form-group">
+                                    <label for="user-name">Имя пользователя</label>
+                                    <input type="text" id="user-name" value="Пользователь">
+                                </div>
+                                <div class="form-group">
+                                    <label for="user-email">Email</label>
+                                    <input type="email" id="user-email" placeholder="user@example.com">
+                                </div>
+                                <div class="form-group">
+                                    <label for="user-language">Язык интерфейса</label>
+                                    <select id="user-language">
+                                        <option value="ru" selected>Русский</option>
+                                        <option value="en">English</option>
+                                        <option value="es">Español</option>
+                                        <option value="fr">Français</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h3><i class="fas fa-robot"></i> Настройки ИИ</h3>
+                            <div class="settings-form">
+                                <div class="form-group">
+                                    <label for="ai-temperature">Температура (креативность)</label>
+                                    <input type="range" id="ai-temperature" min="0" max="1" step="0.1" value="0.7">
+                                    <div class="range-labels">
+                                        <span>Точный</span>
+                                        <span id="temp-value">0.7</span>
+                                        <span>Креативный</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ai-max-tokens">Максимум токенов</label>
+                                    <input type="range" id="ai-max-tokens" min="100" max="4000" step="100" value="2000">
+                                    <div class="range-labels">
+                                        <span id="tokens-value">2000 токенов</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="ai-context" checked>
+                                        <span>Запоминать контекст разговора</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h3><i class="fas fa-database"></i> Хранение данных</h3>
+                            <div class="storage-info">
+                                <div class="storage-bar">
+                                    <div class="storage-fill" id="storage-fill" style="width: 35%"></div>
+                                </div>
+                                <div class="storage-stats">
+                                    <span>Использовано: <strong id="storage-used">3.5 MB</strong></span>
+                                    <span>Всего: <strong>10 MB</strong></span>
+                                </div>
+                                <button class="btn-secondary" id="clear-storage">
+                                    <i class="fas fa-trash"></i> Очистить локальные данные
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-actions">
+                            <button class="btn-primary" id="save-settings">
+                                <i class="fas fa-save"></i> Сохранить настройки
+                            </button>
+                            <button class="btn-secondary" id="reset-settings">
+                                <i class="fas fa-undo"></i> Сбросить настройки
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка История -->
+                <div class="tab-pane" id="history-tab">
+                    <div class="history-container">
+                        <div class="history-header">
+                            <h3>История чатов</h3>
+                            <div class="history-search">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="history-search" placeholder="Поиск в истории...">
+                            </div>
+                        </div>
+                        
+                        <div class="history-list" id="history-list">
+                            <!-- История чатов будет здесь -->
+                        </div>
+                        
+                        <div class="history-actions">
+                            <button class="btn-secondary" id="clear-history">
+                                <i class="fas fa-trash"></i> Очистить историю
+                            </button>
+                            <button class="btn-primary" id="export-all">
+                                <i class="fas fa-file-export"></i> Экспорт всей истории
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка Инструменты -->
+                <div class="tab-pane" id="tools-tab">
+                    <div class="tools-container">
+                        <h3><i class="fas fa-tools"></i> Инструменты ИИ</h3>
+                        
+                        <div class="tools-grid">
+                            <div class="tool-card">
+                                <div class="tool-icon">
+                                    <i class="fas fa-code"></i>
+                                </div>
+                                <h4>Генератор кода</h4>
+                                <p>Создание кода на разных языках программирования</p>
+                                <button class="tool-card-btn" data-tool="code-generator">
+                                    Использовать
+                                </button>
+                            </div>
+                            
+                            <div class="tool-card">
+                                <div class="tool-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <h4>Анализ данных</h4>
+                                <p>Анализ и визуализация загруженных данных</p>
+                                <button class="tool-card-btn" data-tool="data-analysis">
+                                    Использовать
+                                </button>
+                            </div>
+                            
+                            <div class="tool-card">
+                                <div class="tool-icon">
+                                    <i class="fas fa-language"></i>
+                                </div>
+                                <h4>Переводчик</h4>
+                                <p>Перевод текста между 50+ языками</p>
+                                <button class="tool-card-btn" data-tool="translator">
+                                    Использовать
+                                </button>
+                            </div>
+                            
+                            <div class="tool-card">
+                                <div class="tool-icon">
+                                    <i class="fas fa-file-contract"></i>
+                                </div>
+                                <h4>Суммаризатор</h4>
+                                <p>Краткое изложение длинных текстов</p>
+                                <button class="tool-card-btn" data-tool="summarizer">
+                                    Использовать
+                                </button>
+                            </div>
+                            
+                            <div class="tool-card">
+                                <div class="tool-icon">
+                                    <i class="fas fa-spell-check"></i>
+                                </div>
+                                <h4>Корректор текста</h4>
+                                <p>Исправление грамматики и стиля текста</p>
+                                <button class="tool-card-btn" data-tool="text-corrector">
+                                    Использовать
+                                </button>
+                            </div>
+                            
+                            <div class="tool-card">
+                                <div class="tool-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <h4>ИИ обучение</h4>
+                                <p>Обучение модели на ваших данных</p>
+                                <button class="tool-card-btn" data-tool="ai-training">
+                                    Использовать
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="tools-advanced">
+                            <h4><i class="fas fa-flask"></i> Экспериментальные функции</h4>
+                            <div class="advanced-grid">
+                                <button class="advanced-btn" data-tool="image-gen">
+                                    <i class="fas fa-paint-brush"></i>
+                                    <span>Генерация изображений</span>
+                                </button>
+                                <button class="advanced-btn" data-tool="voice-clone">
+                                    <i class="fas fa-microphone-alt"></i>
+                                    <span>Клонирование голоса</span>
+                                </button>
+                                <button class="advanced-btn" data-tool="video-analysis">
+                                    <i class="fas fa-video"></i>
+                                    <span>Анализ видео</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Модальное окно для инструментов -->
+    <div class="modal" id="tool-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Инструмент</h3>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Контент инструмента будет здесь -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомления -->
+    <div class="notification-center" id="notification-center"></div>
+
+    <!-- Скрипты -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
