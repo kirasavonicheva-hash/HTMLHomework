@@ -1,4 +1,3 @@
-// Основной JavaScript файл для ИИ помощника
 
 class AIAssistant {
     constructor() {
@@ -9,7 +8,7 @@ class AIAssistant {
     }
 
     initializeApp() {
-        // Инициализация переменных состояния
+       
         this.currentChat = [];
         this.chatHistory = [];
         this.uploadedFiles = [];
@@ -17,7 +16,7 @@ class AIAssistant {
         this.isRecording = false;
         this.currentTab = 'chat';
         
-        // Настройка toastr для уведомлений
+       
         toastr.options = {
             positionClass: "toast-top-right",
             progressBar: true,
@@ -25,7 +24,7 @@ class AIAssistant {
             closeButton: true
         };
         
-        // Установка имени пользователя из локального хранилища
+        
         const savedName = localStorage.getItem('ai_assistant_username');
         if (savedName) {
             document.getElementById('username').textContent = savedName;
@@ -48,21 +47,21 @@ class AIAssistant {
     }
 
     initializeAI() {
-        // Инициализация голосового распознавания
+      
         this.initVoiceRecognition();
         
-        // Загрузка сохраненных данных
+        
         this.loadChatHistory();
         this.loadFiles();
         
-        // Настройка автовысоты текстового поля
+       
         this.setupAutoResize();
         
         console.log('ИИ помощник инициализирован');
     }
 
     setupEventListeners() {
-        // Навигация
+        
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -70,7 +69,7 @@ class AIAssistant {
             });
         });
 
-        // Отправка сообщения
+      
         document.getElementById('sendButton').addEventListener('click', () => this.sendMessage());
         document.getElementById('userInput').addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -79,10 +78,9 @@ class AIAssistant {
             }
         });
 
-        // Голосовой ввод
+       
         document.getElementById('voice-input').addEventListener('click', () => this.toggleVoiceInput());
 
-        // Загрузка файлов
         document.getElementById('attach-file').addEventListener('click', () => {
             document.getElementById('file-upload').click();
         });
@@ -99,7 +97,7 @@ class AIAssistant {
             this.handleImageUpload(e.target.files);
         });
 
-        // Кнопки управления
+       
         document.getElementById('new-chat').addEventListener('click', () => this.newChat());
         document.getElementById('export-chat').addEventListener('click', () => this.exportChat());
         document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
@@ -108,7 +106,7 @@ class AIAssistant {
         document.getElementById('reset-settings').addEventListener('click', () => this.resetSettings());
         document.getElementById('clear-storage').addEventListener('click', () => this.clearStorage());
 
-        // Быстрые действия
+       
         document.querySelectorAll('.quick-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const action = btn.dataset.action;
@@ -116,7 +114,7 @@ class AIAssistant {
             });
         });
 
-        // Предложения для чата
+        
         document.querySelectorAll('.suggestion-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const prompt = btn.dataset.prompt;
@@ -124,7 +122,7 @@ class AIAssistant {
             });
         });
 
-        // Инструменты
+
         document.querySelectorAll('.tool-card-btn, .advanced-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const tool = btn.dataset.tool;
@@ -132,17 +130,17 @@ class AIAssistant {
             });
         });
 
-        // Закрытие модального окна
+       
         document.getElementById('modal-close').addEventListener('click', () => {
             this.closeModal();
         });
 
-        // Обновление счетчика символов
+        
         document.getElementById('userInput').addEventListener('input', (e) => {
             this.updateCharCount(e.target.value.length);
         });
 
-        // Настройки диапазонов
+        
         document.getElementById('ai-temperature').addEventListener('input', (e) => {
             document.getElementById('temp-value').textContent = e.target.value;
         });
@@ -151,7 +149,7 @@ class AIAssistant {
             document.getElementById('tokens-value').textContent = `${e.target.value} токенов`;
         });
 
-        // Поиск в истории
+        
         document.getElementById('history-search').addEventListener('input', (e) => {
             this.searchHistory(e.target.value);
         });
@@ -160,7 +158,7 @@ class AIAssistant {
     switchTab(tabName) {
         this.currentTab = tabName;
         
-        // Обновление активных элементов навигации
+        
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.remove('active');
             if (item.dataset.tab === tabName) {
@@ -168,13 +166,13 @@ class AIAssistant {
             }
         });
         
-        // Показ соответствующей вкладки
+      
         document.querySelectorAll('.tab-pane').forEach(pane => {
             pane.classList.remove('active');
         });
         document.getElementById(`${tabName}-tab`).classList.add('active');
         
-        // Обновление заголовка
+       
         const tabTitles = {
             chat: 'Чат с ИИ',
             files: 'Файлы',
@@ -184,7 +182,7 @@ class AIAssistant {
         };
         document.getElementById('current-tab').textContent = tabTitles[tabName];
         
-        // Загрузка данных вкладки при необходимости
+        
         if (tabName === 'history') {
             this.loadHistoryList();
         } else if (tabName === 'files') {
@@ -198,23 +196,23 @@ class AIAssistant {
         
         if (!message) return;
         
-        // Добавление сообщения пользователя
+    
         this.addMessage(message, 'user');
         input.value = '';
         this.updateCharCount(0);
         
-        // Показать индикатор загрузки
+       
         const loadingId = this.showLoadingIndicator();
         
         try {
-            // Получение ответа от ИИ
+            
             const response = await this.getAIResponse(message);
             
-            // Удалить индикатор загрузки и добавить ответ
+            
             this.removeLoadingIndicator(loadingId);
             this.addMessage(response, 'ai');
             
-            // Сохранение в историю
+            
             this.saveToHistory(message, response);
             
         } catch (error) {
@@ -225,8 +223,6 @@ class AIAssistant {
     }
 
     async getAIResponse(userMessage) {
-        // В реальном приложении здесь был бы запрос к API ИИ
-        // Для демонстрации используем локальные ответы
         
         const responses = {
             'привет': [
@@ -255,7 +251,7 @@ class AIAssistant {
             ]
         };
         
-        // Поиск подходящего ответа
+      
         const lowerMessage = userMessage.toLowerCase();
         for (const [key, responseList] of Object.entries(responses)) {
             if (lowerMessage.includes(key)) {
@@ -263,12 +259,11 @@ class AIAssistant {
             }
         }
         
-        // Если не найден конкретный ответ, генерируем общий
         return this.generateAIResponse(userMessage);
     }
 
     generateAIResponse(message) {
-        // Более сложная логика генерации ответов
+       
         const responses = [
             `Интересный вопрос! По теме "${message}" могу сказать, что это важная и актуальная тема в современном мире.`,
             `Спасибо за вопрос о "${message}". Это действительно интересная область для обсуждения.`,
@@ -277,7 +272,6 @@ class AIAssistant {
             `Что касается "${message}", это зависит от конкретного контекста. Расскажите подробнее?`
         ];
         
-        // Добавление "умных" ответов в зависимости от типа вопроса
         if (message.includes('?')) {
             responses.push(
                 `На вопрос "${message}" могу ответить, что это зависит от многих факторов.`,
@@ -322,7 +316,7 @@ class AIAssistant {
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         
-        // Добавление в текущий чат
+      
         this.currentChat.push({
             text,
             sender,
@@ -331,7 +325,7 @@ class AIAssistant {
     }
 
     formatMessage(text) {
-        // Форматирование сообщения: ссылки, код и т.д.
+        
         let formatted = text
             .replace(/\n/g, '<br>')
             .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
@@ -389,7 +383,6 @@ class AIAssistant {
         this.chatHistory.unshift(chat);
         localStorage.setItem('ai_assistant_history', JSON.stringify(this.chatHistory));
         
-        // Обновление отображения истории, если открыта соответствующая вкладка
         if (this.currentTab === 'history') {
             this.addHistoryItem(chat);
         }
@@ -441,11 +434,11 @@ class AIAssistant {
         const chat = this.chatHistory.find(c => c.id === parseInt(chatId));
         if (!chat) return;
         
-        // Очистить текущий чат
+        
         this.currentChat = [];
         document.getElementById('chatMessages').innerHTML = '';
         
-        // Добавить сообщения из истории
+       
         this.addMessage(chat.userMessage, 'user');
         this.addMessage(chat.aiResponse, 'ai');
         
@@ -460,7 +453,7 @@ class AIAssistant {
                 document.getElementById('userInput').value = '';
                 this.updateCharCount(0);
                 
-                // Приветственное сообщение
+               
                 setTimeout(() => {
                     this.addMessage('Привет! Я ваш ИИ-помощник. Чем могу помочь сегодня?', 'ai');
                 }, 500);
@@ -564,7 +557,7 @@ class AIAssistant {
         if (!files || files.length === 0) return;
         
         for (let file of files) {
-            if (file.size > 10 * 1024 * 1024) { // 10MB лимит
+            if (file.size > 10 * 1024 * 1024) { 
                 this.showNotification(`Файл ${file.name} слишком большой (макс. 10MB)`, 'error');
                 continue;
             }
@@ -577,8 +570,7 @@ class AIAssistant {
                 uploaded: new Date().toISOString(),
                 content: null
             };
-            
-            // Чтение содержимого текстовых файлов
+           
             if (file.type.startsWith('text/') || file.name.endsWith('.txt') || 
                 file.name.endsWith('.md') || file.name.endsWith('.js') ||
                 file.name.endsWith('.html') || file.name.endsWith('.css')) {
@@ -709,7 +701,6 @@ class AIAssistant {
         
         this.showNotification(`Анализирую файл "${file.name}"...`, 'info');
         
-        // В реальном приложении здесь был бы анализ через ИИ
         setTimeout(() => {
             let analysis = `Анализ файла "${file.name}":\n`;
             analysis += `Размер: ${file.size}\n`;
@@ -721,7 +712,6 @@ class AIAssistant {
                 analysis += `Количество слов: ${words}\n`;
                 analysis += `Количество символов: ${chars}\n`;
                 
-                // Простой анализ текста
                 if (words > 0) {
                     const sentences = file.content.split(/[.!?]+/).length;
                     const avgWordLength = chars / words;
@@ -730,7 +720,7 @@ class AIAssistant {
                 }
             }
             
-            // Показать анализ в чате
+            
             this.switchTab('chat');
             setTimeout(() => {
                 this.addMessage(analysis, 'ai');
@@ -914,7 +904,7 @@ class AIAssistant {
         this.closeModal();
         this.switchTab('chat');
         
-        // Имитация генерации кода
+        
         setTimeout(() => {
             const codeExamples = {
                 javascript: `// Пример кода на JavaScript
@@ -970,8 +960,7 @@ def ${this.generateFunctionName(description)}():
         
         this.closeModal();
         this.switchTab('chat');
-        
-        // Имитация перевода
+       
         setTimeout(() => {
             const translations = {
                 en: `Translation to English:\n"${text}" → "This is a translated text example."`,
@@ -995,8 +984,7 @@ def ${this.generateFunctionName(description)}():
         
         this.closeModal();
         this.switchTab('chat');
-        
-        // Имитация суммаризации
+      
         setTimeout(() => {
             const wordCount = text.split(/\s+/).length;
             const summary = `Краткое содержание (исходный текст: ${wordCount} слов):\n\n` +
@@ -1012,7 +1000,7 @@ def ${this.generateFunctionName(description)}():
     }
 
     generateFunctionName(description) {
-        // Генерация имени функции на основе описания
+   
         return description
             .toLowerCase()
             .replace(/[^a-z0-9\s]/g, '')
@@ -1052,7 +1040,7 @@ def ${this.generateFunctionName(description)}():
         document.getElementById('username').textContent = this.settings.username;
         this.showNotification('Настройки сохранены', 'success');
         
-        // Обновление статуса хранилища
+       
         this.updateStorageInfo();
     }
 
@@ -1061,7 +1049,7 @@ def ${this.generateFunctionName(description)}():
             this.settings = this.getDefaultSettings();
             localStorage.removeItem('ai_assistant_settings');
             
-            // Сброс UI элементов
+           
             document.getElementById('user-name').value = this.settings.username;
             document.getElementById('user-language').value = this.settings.language;
             document.getElementById('model-select').value = this.settings.aiModel;
@@ -1105,12 +1093,12 @@ def ${this.generateFunctionName(description)}():
     }
 
     loadData() {
-        // Загрузка настроек
+      
         const savedSettings = localStorage.getItem('ai_assistant_settings');
         if (savedSettings) {
             this.settings = JSON.parse(savedSettings);
             
-            // Применение настроек к UI
+            
             if (this.settings.username) {
                 document.getElementById('username').textContent = this.settings.username;
                 document.getElementById('user-name').value = this.settings.username;
@@ -1121,28 +1109,28 @@ def ${this.generateFunctionName(description)}():
             }
         }
         
-        // Загрузка истории
+      
         const savedHistory = localStorage.getItem('ai_assistant_history');
         if (savedHistory) {
             this.chatHistory = JSON.parse(savedHistory);
         }
         
-        // Обновление информации о хранилище
+        
         this.updateStorageInfo();
     }
 
     updateStorageInfo() {
         let totalSize = 0;
         
-        // Расчет размера сохраненных данных
+      
         for (let key in localStorage) {
             if (localStorage.hasOwnProperty(key)) {
-                totalSize += localStorage[key].length * 2; // Приблизительный размер в байтах
+                totalSize += localStorage[key].length * 2;
             }
         }
         
         const usedMB = (totalSize / (1024 * 1024)).toFixed(2);
-        const percentage = Math.min((usedMB / 10) * 100, 100); // 10MB лимит
+        const percentage = Math.min((usedMB / 10) * 100, 100); 
         
         document.getElementById('storage-used').textContent = `${usedMB} MB`;
         document.getElementById('storage-fill').style.width = `${percentage}%`;
@@ -1161,7 +1149,7 @@ def ${this.generateFunctionName(description)}():
     updateCharCount(count) {
         document.getElementById('charCount').textContent = count;
         
-        // Изменение цвета при приближении к лимиту
+        
         const charCount = document.getElementById('charCount');
         if (count > 3500) {
             charCount.style.color = 'var(--danger-color)';
@@ -1206,7 +1194,7 @@ def ${this.generateFunctionName(description)}():
         
         notificationCenter.appendChild(notification);
         
-        // Автоматическое удаление через 5 секунд
+       
         setTimeout(() => {
             notification.style.animation = 'slideIn 0.3s ease reverse';
             setTimeout(() => notification.remove(), 300);
@@ -1224,26 +1212,27 @@ def ${this.generateFunctionName(description)}():
         const messageDiv = button.closest('.message');
         const messageText = messageDiv.querySelector('.message-text').textContent;
         
-        // Удалить старое сообщение
+        
         messageDiv.remove();
         
-        // Отправить запрос на регенерацию
+       
         document.getElementById('userInput').value = messageText;
         this.sendMessage();
     }
 }
 
-// Инициализация приложения
+
 let aiAssistant;
 
 document.addEventListener('DOMContentLoaded', () => {
     aiAssistant = new AIAssistant();
     
-    // Добавление глобальной переменной для доступа из HTML
+    
     window.aiAssistant = aiAssistant;
     
-    // Отображение приветственного сообщения
+   
     setTimeout(() => {
         aiAssistant.addMessage('Привет! Я ваш ИИ-помощник. Готов помочь с любыми задачами: отвечать на вопросы, анализировать файлы, генерировать код и многое другое. Чем могу быть полезен?', 'ai');
     }, 1000);
+
 });
