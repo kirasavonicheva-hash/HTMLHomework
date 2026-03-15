@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEazy - Деловой стиль</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">ShopEazy</div>
+        <button class="burger" id="burgerBtn">☰</button>
+        <nav id="navLinks">
+            <a class="nav-link active" data-page="home">Главная</a>
+            <a class="nav-link" data-page="catalog">Каталог</a>
+            <a class="nav-link" data-page="cart">Корзина (<span id="cartCount">0</span>)</a>
+            <a class="nav-link" data-page="contacts">Контакты</a>
+        </nav>
+    </header>
+    <main>
+        <section id="home" class="page active-page">
+            <div class="home-hero">
+                <h1>Управляйте заказами<br>с максимальной эффективностью</h1>
+                <p>Корпоративный портал для закупок. Только необходимое, без лишнего.</p>
+                <button class="primary-btn" id="goToCatalog">Перейти в каталог</button>
+            </div>
+            <div class="features">
+                <div class="feature-card">
+                    <h3>Точный учёт 1С</h3>
+                    <p>Все операции фиксируются.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Ахрененный встроенный калькулятор</h3>
+                    <p>Изменяйте количество - мгновенный пересчёт стоимости.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Такое же ахренительное качество как и калькулятор.</h3>
+                    <p>Четкий дизайн, и лучшее качество.</p>
+                </div>
+            </div>
+        </section>
+        <section id="catalog" class="page">
+            <h1>Каталог товаров</h1>
+            <div class="product-grid" id="productGrid"></div>
+        </section>
+        <section id="cart" class="page">
+            <h1>Корзина</h1>
+            <div class="cart-items" id="cartContainer"></div>
+        </section>
+        <section id="contacts" class="page">
+            <h1>Контакты</h1>
+            <div class="contact-card">
+                <p>📞 +7 (495) 123-45-67</p>
+                <p>✉️ supply@shopeazy.ru</p>
+                <p>📍 Москва, ул. Тверская, 12</p>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>© 2026 ShopEazy — деловой подход к закупкам</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
