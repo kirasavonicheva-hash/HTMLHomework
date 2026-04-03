@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реестр аномальных облаков</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Реестр аномальных облаков</h1>
+            <a href="{{ url_for('add_observation') }}" class="btn btn-primary">+ Добавить наблюдение</a>
+        </header>
+        <div class="filter-section">
+            <h3>Фильтр по типу облака</h3>
+            <div class="filter-buttons">
+                <a href="{{ url_for('index') }}" class="filter-btn {% if not current_filter %}active{% endif %}">Все</a>
+                {% for type in cloud_types %}
+                    <a href="{{ url_for('index', type=type) }}" class="filter-btn {% if current_filter == type %}active{% endif %}">
+                        {{ type }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="observations-list">
+            <h2>Наблюдения</h2>
+            {% if observations %}
+                <div class="observations-grid">
+                    {% for obs in observations %}
+                        <div class="observation-card">
+                            <div class="card-header">
+                                <span class="cloud-type">{{ obs.cloud_type }}</span>
+                                <span class="observation-date">{{ obs.observation_date }}</span>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Место:</strong> {{ obs.location }}</p>
+                                <p><strong>Наблюдатель:</strong> {{ obs.photographer }}</p>
+                                {% if obs.description %}
+                                    <p><strong>Описание:</strong> {{ obs.description }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="card-footer">
+                                <small>Добавлено: {{ obs.created_at }}</small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-data">Нет наблюдений. Будьте первым, кто добавит запись!</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

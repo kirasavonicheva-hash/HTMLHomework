@@ -1,0 +1,8 @@
+CK_RH_zadanie3/
+├── app.py
+├── database.db (создаётся автоматически)
+├── templates/
+│   ├── index.html
+│   └── add.html
+└── static/
+    └── style.css

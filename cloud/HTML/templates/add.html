@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить наблюдение</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌥️ Добавить новое наблюдение</h1>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">← На главную</a>
+        </header>
+
+        <div class="form-container">
+            {% if error %}
+                <div class="error-message">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('add_observation') }}">
+                <div class="form-group">
+                    <label for="location">Место наблюдения *</label>
+                    <input type="text" id="location" name="location" required placeholder="Например: Москва, парк Горького">
+                </div>
+
+                <div class="form-group">
+                    <label for="cloud_type">Тип облака *</label>
+                    <select id="cloud_type" name="cloud_type" required>
+                        <option value="">Выберите тип облака</option>
+                        {% for type in cloud_types %}
+                            <option value="{{ type }}">{{ type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="observation_date">Дата наблюдения *</label>
+                    <input type="date" id="observation_date" name="observation_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="photographer">Имя наблюдателя *</label>
+                    <input type="text" id="photographer" name="photographer" required placeholder="Ваше имя или псевдоним">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Описание (необязательно)</label>
+                    <textarea id="description" name="description" rows="4" placeholder="Опишите, что вы видели, размеры облаков, поведение и т.д."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Сохранить наблюдение</button>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
