@@ -9,11 +9,9 @@
 <body>
     <div class="container">
         <header>
-            <h1>🌥️ Реестр аномальных облаков</h1>
+            <h1>Реестр аномальных облаков</h1>
             <a href="{{ url_for('add_observation') }}" class="btn btn-primary">+ Добавить наблюдение</a>
         </header>
-
-        <!-- Фильтр по типу облака -->
         <div class="filter-section">
             <h3>Фильтр по типу облака</h3>
             <div class="filter-buttons">
@@ -25,8 +23,6 @@
                 {% endfor %}
             </div>
         </div>
-
-        <!-- Список наблюдений -->
         <div class="observations-list">
             <h2>Наблюдения</h2>
             {% if observations %}
@@ -38,10 +34,10 @@
                                 <span class="observation-date">{{ obs.observation_date }}</span>
                             </div>
                             <div class="card-body">
-                                <p><strong>📍 Место:</strong> {{ obs.location }}</p>
-                                <p><strong>📸 Наблюдатель:</strong> {{ obs.photographer }}</p>
+                                <p><strong> Место:</strong> {{ obs.location }}</p>
+                                <p><strong> Наблюдатель:</strong> {{ obs.photographer }}</p>
                                 {% if obs.description %}
-                                    <p><strong>📝 Описание:</strong> {{ obs.description }}</p>
+                                    <p><strong>Описание:</strong> {{ obs.description }}</p>
                                 {% endif %}
                             </div>
                             <div class="card-footer">
