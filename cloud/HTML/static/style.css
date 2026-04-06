@@ -3,7 +3,6 @@
     padding: 0;
     box-sizing: border-box;
 }
-
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -11,7 +10,6 @@ body {
     padding: 20px;
     color: #333;
 }
-
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -21,7 +19,6 @@ body {
     overflow: hidden;
     padding: 30px;
 }
-
 header {
     display: flex;
     justify-content: space-between;
@@ -30,12 +27,10 @@ header {
     padding-bottom: 20px;
     border-bottom: 2px solid #eee;
 }
-
 h1 {
     color: #667eea;
     font-size: 1.8rem;
 }
-
 .btn {
     padding: 10px 20px;
     border-radius: 8px;
@@ -47,44 +42,36 @@ h1 {
     cursor: pointer;
     font-size: 14px;
 }
-
 .btn-primary {
     background: #667eea;
     color: white;
 }
-
 .btn-primary:hover {
     background: #5a67d8;
     transform: translateY(-2px);
 }
-
 .btn-secondary {
     background: #e2e8f0;
     color: #4a5568;
 }
-
 .btn-secondary:hover {
     background: #cbd5e0;
 }
-
 .filter-section {
     background: #f7fafc;
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 30px;
 }
-
 .filter-section h3 {
     margin-bottom: 15px;
     color: #4a5568;
 }
-
 .filter-buttons {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
 }
-
 .filter-btn {
     padding: 8px 16px;
     background: white;
@@ -95,29 +82,24 @@ h1 {
     transition: all 0.3s ease;
     font-size: 14px;
 }
-
 .filter-btn:hover {
     border-color: #667eea;
     background: #edf2f7;
 }
-
 .filter-btn.active {
     background: #667eea;
     border-color: #667eea;
     color: white;
 }
-
 .observations-list h2 {
     margin-bottom: 20px;
     color: #4a5568;
 }
-
 .observations-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 20px;
 }
-
 .observation-card {
     background: white;
     border: 1px solid #e2e8f0;
@@ -126,12 +108,10 @@ h1 {
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-
 .observation-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
-
 .card-header {
     background: #f7fafc;
     padding: 15px;
@@ -139,28 +119,23 @@ h1 {
     justify-content: space-between;
     border-bottom: 1px solid #e2e8f0;
 }
-
 .cloud-type {
     font-weight: bold;
     color: #667eea;
     text-transform: uppercase;
     font-size: 12px;
 }
-
 .observation-date {
     color: #718096;
     font-size: 12px;
 }
-
 .card-body {
     padding: 15px;
 }
-
 .card-body p {
     margin-bottom: 8px;
     line-height: 1.5;
 }
-
 .card-footer {
     background: #f7fafc;
     padding: 10px 15px;
@@ -168,31 +143,25 @@ h1 {
     font-size: 11px;
     color: #a0aec0;
 }
-
 .no-data {
     text-align: center;
     padding: 40px;
     color: #a0aec0;
     font-size: 16px;
 }
-
-/* Стили для формы */
 .form-container {
     max-width: 600px;
     margin: 0 auto;
 }
-
 .form-group {
     margin-bottom: 20px;
 }
-
 .form-group label {
     display: block;
     margin-bottom: 8px;
     font-weight: bold;
     color: #4a5568;
 }
-
 .form-group input,
 .form-group select,
 .form-group textarea {
@@ -204,24 +173,20 @@ h1 {
     font-family: inherit;
     transition: border-color 0.3s ease;
 }
-
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: #667eea;
 }
-
 .form-group textarea {
     resize: vertical;
 }
-
 .form-actions {
     display: flex;
     gap: 10px;
     margin-top: 30px;
 }
-
 .error-message {
     background: #fed7d7;
     color: #c53030;
@@ -230,17 +195,14 @@ h1 {
     margin-bottom: 20px;
     border-left: 4px solid #c53030;
 }
-
 @media (max-width: 768px) {
     .container {
         padding: 20px;
     }
-    
     header {
         flex-direction: column;
         gap: 15px;
     }
-    
     .observations-grid {
         grid-template-columns: 1fr;
     }
