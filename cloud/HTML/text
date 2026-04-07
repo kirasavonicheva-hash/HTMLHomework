@@ -1,6 +1,6 @@
 CK_RH_zadanie3/
 ├── app.py
-├── database.db (создаётся автоматически)
+├── database.db 
 ├── templates/
 │   ├── index.html
 │   └── add.html
