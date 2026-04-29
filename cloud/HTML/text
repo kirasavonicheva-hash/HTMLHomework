@@ -1,8 +1,0 @@
-CK_RH_zadanie228/
-├── app.py
-├── database.db 
-├── templates/
-│   ├── index.html
-│   └── add.html
-└── static/
-    └── style.css
