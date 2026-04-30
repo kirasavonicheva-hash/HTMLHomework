@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Лунное сияние — Трекер привычек</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, -apple-system, 'Montserrat', sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1.5rem;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            background: linear-gradient(145deg, #0b0719 0%, #1a1030 50%, #0c0922 100%);
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 30, 150, 0.25) 0%, rgba(0, 0, 0, 0.4) 80%);
+            pointer-events: none;
+            box-shadow: inset 0 0 100px rgba(255, 0, 120, 0.3);
+        }
+        #cometsCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.55;
+            filter: blur(1px);
+        }
+        .wrapper {
+            max-width: 1300px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(20, 12, 35, 0.45);
+            backdrop-filter: blur(24px) saturate(200%);
+            -webkit-backdrop-filter: blur(24px) saturate(200%);
+            border-radius: 3rem;
+            padding: 2rem 2.5rem 3.5rem;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 70, 180, 0.4), inset 0 0 35px rgba(255, 30, 150, 0.3);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 90, 190, 0.5);
+        }
+        .header-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 1rem;
+            background: rgba(45, 25, 70, 0.5);
+            padding: 0.8rem 2rem;
+            border-radius: 80px;
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 100, 200, 0.45);
+            box-shadow: 0 5px 20px rgba(255, 0, 100, 0.2);
+        }
+        .title-area h1 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #c084fc, #ff66c0, #f0a6ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            text-shadow: 0 0 12px rgba(255, 30, 150, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1.3;
+        }
+        .title-area h1 span {
+            font-size: 1.1rem !important;
+            background: linear-gradient(135deg, #c084fc, #ff66c0, #f0a6ff) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
+            letter-spacing: -0.3px;
+            font-weight: 600;
+            margin-top: 3px;
+            padding-left: 50px;
+        }
+        .cat-streak-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            background: transparent;
+            backdrop-filter: none;
+            padding: 0;
+            border: none;
+            box-shadow: none;
+            transform: translateZ(0);
+            margin-left: -1.7cm;
+        }
+        .custom-cat {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.2s;
+            margin-bottom: 0;
+            transform: rotate(0deg) scale(1);
+        }
+        .cat-svg {
+            width: 100px;
+            height: 100px;
+            transition: transform 0.3s ease, filter 0.2s;
+            display: block;
+            margin: 0 auto;
+            transform-origin: center center;
+        }
+        .cat-svg.active-cat {
+            filter: drop-shadow(0 0 16px #ff66d0) !important;
+            animation: catGlowPulse 1.2s infinite ease-in-out;
+        }
+        .cat-svg.inactive-cat {
+            filter: grayscale(0.6) drop-shadow(0 0 4px #b370a0) !important;
+            opacity: 0.7;
+        }
+        @keyframes catGlowPulse {
+            0% { filter: drop-shadow(0 0 6px #ff66c0); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 22px #ff44aa); transform: scale(1.04); }
+            100% { filter: drop-shadow(0 0 6px #ff66c0); transform: scale(1); }
+        }
+        .global-streak {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #ffeef8;
+            text-shadow: 0 0 6px #ff66c0, 0 0 2px #ffb0e0;
+            text-align: center;
+            letter-spacing: 0.5px;
+            background: transparent;
+            backdrop-filter: none;
+            border: none;
+            box-shadow: none;
+            border-radius: 0;
+            padding: 0;
+            margin-top: 4px;
+            margin-left: -0.3cm;
+            min-width: auto;
+            display: inline-block;
+            line-height: 1.2;
+        }
+        .sub {
+            text-align: center;
+            color: #f0d6ff;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-shadow: 0 0 6px rgba(255, 150, 200, 0.8);
+        }
+        .add-habit {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 2rem;
+            background: rgba(20, 8, 40, 0.55);
+            padding: 1.3rem 1.8rem;
+            border-radius: 3rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 70, 180, 0.5);
+        }
+        .add-habit input {
+            flex: 2;
+            min-width: 170px;
+            background: rgba(255, 220, 250, 0.2);
+            border: 1px solid #ff77cc;
+            padding: 12px 20px;
+            border-radius: 60px;
+            font-size: 1rem;
+            color: #ffffff;
+            outline: none;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .add-habit input::placeholder {
+            color: #e0b0ff;
+        }
+        .add-habit input:focus {
+            border-color: #ff66c0;
+            box-shadow: 0 0 20px #ff44aa;
+            background: rgba(30, 10, 55, 0.8);
+        }
+        .neon-btn {
+            background: rgba(255, 60, 160, 0.25);
+            border: 2px solid #ff6ac4;
+            padding: 12px 32px;
+            border-radius: 60px;
+            font-weight: bold;
+            color: #ffddf5;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s;
+            box-shadow: 0 0 12px #ff44aa;
+            letter-spacing: 0.5px;
+        }
+        .neon-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 28px #ff56bc;
+            background: rgba(255, 80, 170, 0.45);
+            color: white;
+            border-color: #ff90d0;
+        }
+        .habits-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .habit-column {
+            background: rgba(25, 12, 48, 0.55);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 70, 180, 0.5);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 18px rgba(255, 0, 110, 0.2);
+        }
+        .column-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ff9ee0;
+            margin-bottom: 1rem;
+            text-align: center;
+            text-shadow: 0 0 5px #ff44aa;
+        }
+        .habits-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 12px;
+        }
+        .habits-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+        .habits-grid::-webkit-scrollbar-track {
+            background: rgba(190, 100, 180, 0.15);
+            border-radius: 10px;
+        }
+        .habits-grid::-webkit-scrollbar-thumb {
+            background: #ff7ac8;
+            border-radius: 10px;
+        }
+        .habits-grid::-webkit-scrollbar-thumb:hover {
+            background: #ff90d0;
+        }
+        .habit-card {
+            background: rgba(45, 25, 75, 0.6);
+            backdrop-filter: blur(25px);
+            border-radius: 2.2rem;
+            padding: 1rem 1.3rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border: 1px solid rgba(255, 120, 200, 0.5);
+            transition: all 0.2s;
+            box-shadow: 0 0 8px rgba(255, 0, 130, 0.2);
+        }
+        .habit-card:hover {
+            background: rgba(45, 25, 75, 0.6);
+        }
+        .habit-name {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #f3d9ff;
+            text-shadow: 0 0 2px #c756ff;
+        }
+        .streak-badge {
+            background: rgba(255, 80, 160, 0.35);
+            border-radius: 40px;
+            padding: 4px 14px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #ffebf5;
+            backdrop-filter: blur(8px);
+            border: 1px solid #ff83cc;
+        }
+        .last-updated {
+            font-size: 0.7rem;
+            color: #e0bbff;
+            background: rgba(100, 40, 130, 0.5);
+            padding: 4px 12px;
+            border-radius: 60px;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+        }
+        .check-btn, .delete-btn {
+            border: none;
+            background: rgba(230, 150, 200, 0.3);
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #ffc0ea;
+            border: 1px solid rgba(255, 100, 160, 0.6);
+            backdrop-filter: blur(4px);
+        }
+        .check-btn {
+            background: rgba(180, 80, 210, 0.45);
+        }
+        .check-btn:hover {
+            background: rgba(200, 100, 230, 0.75);
+            transform: scale(1.02);
+            color: white;
+            box-shadow: 0 0 16px #ff50c0;
+        }
+        .delete-btn {
+            background: rgba(210, 50, 120, 0.5);
+            border-color: #ff679d;
+            color: #ffe0f0;
+        }
+        .delete-btn:hover {
+            background: rgba(230, 60, 130, 0.85);
+            color: white;
+            transform: scale(1.02);
+            box-shadow: 0 0 14px #ff3070;
+        }
+        .empty-message {
+            text-align: center;
+            padding: 1.8rem;
+            color: #e7b0ff;
+            background: rgba(255, 100, 180, 0.15);
+            border-radius: 2rem;
+            border: 1px dashed #ff70c0;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(24px);
+            border-radius: 2.5rem;
+            padding: 0.9rem 2rem;
+            flex-wrap: wrap;
+            gap: 18px;
+            color: #f0ccff;
+            border: 1px solid rgba(255, 110, 190, 0.7);
+            font-weight: 600;
+        }
+        .stats span {
+            font-weight: 800;
+            color: #ffb3e0;
+            text-shadow: 0 0 4px #ff44aa;
+        }
+        @media (max-width: 900px) {
+            .habits-section {
+                grid-template-columns: 1fr;
+            }
+            .wrapper {
+                padding: 1.5rem;
+            }
+            .habit-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .actions {
+                justify-content: flex-end;
+            }
+        }
+        .error-shake {
+            animation: shakeNeon 0.3s ease-in-out 0s 2;
+            border-color: #ff88cc !important;
+        }
+        @keyframes shakeNeon {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+            100% { transform: translateX(0); }
+        }
+        .streak-pop {
+            animation: streakPop 0.4s ease-out;
+        }
+        @keyframes streakPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); color: #ffd700; text-shadow: 0 0 12px #ff66c0; }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+<canvas id="cometsCanvas"></canvas>
+<div class="wrapper">
+    <div class="header-stats">
+        <div class="title-area">
+            <h1>🌙Лунное сияние <span style="font-size: 1rem;">трекер привычек</span></h1>
+        </div>
+        <div class="cat-streak-panel" id="catPanel">
+            <div class="custom-cat" id="catIconContainer">
+                <!--Функциональность кота а именно ушки голова тельце и т.д-->
+                <svg class="cat-svg" id="catSvgElem" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                     <!-- ЛАПЫ (НИЖНИЕ) -->
+                     <!-- Две розовые лапки внизу, на которых кот сидит -->
+                    <ellipse cx="50" cy="98" rx="28" ry="18" fill="#FFE5F4" stroke="#FF66B5" stroke-width="2.5"/>
+                    <!-- ТЕЛО -->
+                    <!-- Основное тело кота (круг, соединяющийся с головой и лапами) -->
+                    <circle cx="50" cy="70" r="32" fill="#FFE5F4" stroke="#FF66B5" stroke-width="2.5"/>
+                     <!-- ЛЕВОЕ УХО (внешняя и внутренняя часть) -->
+                    <path d="M22 47 L18 20 L46 40 Z" fill="#FFC8E4" stroke="#FF66B5" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M76 50 L82 20 L54 38 Z" fill="#FFC8E4" stroke="#FF66B5" stroke-width="2" stroke-linejoin="round"/>
+                    <!-- ПРАВОЕ УХО (внешняя и внутренняя часть) -->
+                    <path d="M27 40 L22 25 L44 36 Z" fill="#FF9ECF" stroke="none"/>
+                    <path d="M73 40 L78 25 L56 36 Z" fill="#FF9ECF" stroke="none"/>
+                     <!--ГЛАЗА (ЛЕВЫЙ И ПРАВЫЙ)-->
+                    <ellipse cx="41" cy="57" rx="6.5" ry="7.5" fill="#2D1B46"/>
+                    <ellipse cx="59" cy="57" rx="6.5" ry="7.5" fill="#2D1B46"/>
+                     <!-- Блики в глазах (белые точки) -->
+                    <circle cx="43" cy="54" r="2.5" fill="white"/>
+                    <circle cx="61" cy="54" r="2.5" fill="white"/>
+                    <!-- Радужка / цветной сектор в глазах (фиолетовый) -->
+                    <path d="M41 53 L42.5 56.5 L41 60 L39.5 56.5 Z" fill="#C58AFF" opacity="0.95"/>
+                    <path d="M59 53 L60.5 56.5 L59 60 L57.5 56.5 Z" fill="#C58AFF" opacity="0.95"/>
+                    <!--НОС-->
+                    <ellipse cx="50" cy="66" rx="5" ry="3.8" fill="#FF7AAA"/>
+                     <!--РОТ-->
+                    <path d="M44 71 L50 67 L56 71" stroke="#FF5A95" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    <path d="M50 70 L50 73" stroke="#FF5A95" stroke-width="2" stroke-linecap="round"/>
+                      <!--УСЫ (СЛЕВА И СПРАВА)-->
+                    <line x1="35" y1="64" x2="18" y2="60" stroke="#E0A0C0" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="35" y1="68" x2="16" y2="68" stroke="#E0A0C0" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="35" y1="72" x2="18" y2="76" stroke="#E0A0C0" stroke-width="2" stroke-linecap="round"/>
+                     <!-- Правые усы -->
+                    <line x1="65" y1="64" x2="82" y2="60" stroke="#E0A0C0" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="65" y1="68" x2="84" y2="68" stroke="#E0A0C0" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="65" y1="72" x2="82" y2="76" stroke="#E0A0C0" stroke-width="2" stroke-linecap="round"/>
+                     <!--НОС И ЛОБ (треугольник и круг)-->
+                    <path d="M44 44 L56 44 L50 52 Z" fill="#FFEAA0" stroke="#FFBB66" stroke-width="1.5"/>
+                    <circle cx="50" cy="39" r="8" fill="#FFE884" stroke="#FFAA66" stroke-width="1.2"/>
+                     <!--РУМЯНЕЦ (ЩЁЧКИ)-->
+                    <circle cx="37" cy="66" r="4.5" fill="#FFB0D0" opacity="0.7"/>
+                    <circle cx="63" cy="66" r="4.5" fill="#FFB0D0" opacity="0.7"/>
+                     <!--ЗВЁЗДОЧКИ (УКРАШЕНИЕ ВОКРУГ ГОЛОВЫ)-->
+                    <path d="M72 28 L74 32 L78 32 L75 35 L76 39 L72 37 L68 39 L69 35 L66 32 L70 32 Z" fill="#FFEEB0" opacity="0.9"/>
+                     <!-- Левая звёздочка -->
+                    <path d="M28 28 L30 32 L34 32 L31 35 L32 39 L28 37 L24 39 L25 35 L22 32 L26 32 Z" fill="#FFEEB0" opacity="0.85"/>
+                    <!--ЛАПЫ (ВЕРХНИЕ / ПЛЕЧИ)-->
+                    <ellipse cx="36" cy="102" rx="10" ry="6" fill="#FFD6EA" stroke="#FF66B5" stroke-width="1.5"/>
+                    <ellipse cx="64" cy="102" rx="10" ry="6" fill="#FFD6EA" stroke="#FF66B5" stroke-width="1.5"/>
+                      <!--ХВОСТ-->
+                    <path d="M78 95 Q92 88 88 76 Q86 68 80 72" stroke="#FFC8E4" stroke-width="4" fill="none" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="global-streak" id="globalStreakDisplay">0</div>
+        </div>
+    </div>
+    <div class="sub">Каждый день новая строчка в дневнике сияния</div>
+    <div class="add-habit">
+        <input type="text" id="habitNameInput" placeholder="Например: Медитация, Зарядка, Чтение...">
+        <button class="neon-btn" id="addHabitBtn">Добавить привычку</button>
+    </div>
+    <div id="habitsContainer" class="habits-section">
+        <div class="habit-column">
+            <div class="column-title">Вредные привычки</div>
+            <div class="habits-grid" id="badHabits"></div>
+        </div>
+        <div class="habit-column">
+            <div class="column-title">Полезные привычки</div>
+            <div class="habits-grid" id="goodHabits"></div>
+        </div>
+    </div>
+    <div class="stats">
+        <p>Всего привычек: <span id="totalHabits">0</span></p>
+        <p>Суммарный streak: <span id="totalStreak">0</span></p>
+        <p>Макс. цепочка: <span id="maxStreak">0</span></p>
+        <p>Выполнено сегодня: <span id="todayCompleted">0</span></p>
+    </div>
+</div>
+<script>
+    const STORAGE_KEY = "comet_habits_lunar_dream_cat_final_v2";
+    let habits = [];
+    function getTodayDate() {
+        const d = new Date();
+        return d.toISOString().slice(0, 10);
+    }
+    function getYesterdayStr() {
+        const y = new Date();
+        y.setDate(y.getDate() - 1);
+        return y.toISOString().slice(0, 10);
+    }
+    function loadData() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+            try {
+                habits = JSON.parse(raw);
+                if (!Array.isArray(habits)) habits = [];
+            } catch (e) { habits = []; }
+        } else {
+            habits = [];
+        }
+        habits = habits.map(h => ({
+            id: h.id,
+            name: h.name,
+            currentStreak: h.currentStreak ?? 0,
+            lastCheckDate: h.lastCheckDate ?? null,
+            createdAt: h.createdAt ?? new Date().toISOString()
+        }));
+    }
+    function saveToDB() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+    }
+    function recalcAllStreaks() {
+        const today = getTodayDate();
+        const yesterday = getYesterdayStr();
+        let changed = false;
+        for (let h of habits) {
+            if (!h.lastCheckDate) {
+                if (h.currentStreak !== 0) { h.currentStreak = 0; changed = true; }
+                continue;
+            }
+            const last = h.lastCheckDate;
+            if (last !== today && last !== yesterday && h.currentStreak !== 0) {
+                h.currentStreak = 0;
+                changed = true;
+            }
+        }
+        if (changed) saveToDB();
+    }
+    function computeNewStreak(habit) {
+        const today = getTodayDate();
+        if (habit.lastCheckDate === today) return habit.currentStreak;
+        if (!habit.lastCheckDate) return 1;
+        const yesterday = getYesterdayStr();
+        if (habit.lastCheckDate === yesterday) return habit.currentStreak + 1;
+        return 1;
+    }
+    function computeGlobalStreak() {
+        if (habits.length === 0) return 0;
+        let allDates = [];
+        for (let h of habits) {
+            if (h.lastCheckDate) {
+                allDates.push(h.lastCheckDate);
+            }
+        }
+        if (allDates.length === 0) return 0;
+        let uniqueDates = [...new Set(allDates)].sort().reverse();
+        const today = getTodayDate();
+        const yesterday = getYesterdayStr();
+        const hasToday = uniqueDates.includes(today);
+        const hasYesterday = uniqueDates.includes(yesterday);
+        if (!hasToday && !hasYesterday) return 0;
+        let startDate = hasToday ? today : yesterday;
+        let streak = 1;
+        let checkDate = new Date(startDate);
+                for (let i = 1; i < 365; i++) {
+            checkDate.setDate(checkDate.getDate() - 1);
+            const dateStr = checkDate.toISOString().slice(0, 10);
+            if (uniqueDates.includes(dateStr)) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+        return streak;
+    }
+    function updateCatAndGlobalUI(animate = false) {
+        const globalStreak = computeGlobalStreak();
+        const streakDiv = document.getElementById("globalStreakDisplay");
+        if (streakDiv) {
+            if (animate) {
+                streakDiv.classList.add('streak-pop');
+                setTimeout(() => streakDiv.classList.remove('streak-pop'), 400);
+            }
+            streakDiv.innerText = globalStreak;
+        }
+        const catSvg = document.getElementById("catSvgElem");
+        if (catSvg) {
+            if (globalStreak > 0) {
+                catSvg.classList.remove("inactive-cat");
+                catSvg.classList.add("active-cat");
+            } else {
+                catSvg.classList.remove("active-cat");
+                catSvg.classList.add("inactive-cat");
+            }
+        }
+        console.log("Global streak updated:", globalStreak);
+    }
+    function renderHabitsOnly() {
+        const badContainer = document.getElementById('badHabits');
+        const goodContainer = document.getElementById('goodHabits');
+        if (!badContainer || !goodContainer) return;
+        const today = getTodayDate();
+        const badWords = ['курение', 'алкоголь', 'сладкое', 'фастфуд', 'сигареты', 'чипсы', 'газировка', 'никотин', 'энергетик', 'токсикомания', 'переедание', 'кофеин', 'игромания', 'лудомания'];
+        const goodWords = ['спорт', 'зарядка', 'медитация', 'чтение', 'вода', 'бег', 'йога', 'тренировка', 'отжимания', 'книга', 'учеба', 'обследование', 'сон',];
+        let badHtml = '', goodHtml = '';
+        for (let habit of habits) {
+            const isCheckedToday = (habit.lastCheckDate === today);
+            const btnText = isCheckedToday ? 'Выполнено' : 'Отметить';
+            const habitHtml = `
+                <div class="habit-card" data-id="${habit.id}">
+                    <div class="habit-info" style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; flex:3;">
+                        <div class="habit-name">${escapeHtml(habit.name)}</div>
+                        <div class="streak-badge">${habit.currentStreak} дн.</div>
+                        <div class="last-updated">${habit.lastCheckDate || '—'}</div>
+                    </div>
+                    <div class="actions">
+                        <button class="check-btn check-btn-item" data-id="${habit.id}" ${isCheckedToday ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''}>${btnText}</button>
+                        <button class="delete-btn delete-btn-item" data-id="${habit.id}">Удалить</button>
+                    </div>
+                </div>
+            `;
+            const nameLower = habit.name.toLowerCase();
+            if (badWords.some(w => nameLower.includes(w))) {
+                badHtml += habitHtml;
+            } else if (goodWords.some(w => nameLower.includes(w))) {
+                goodHtml += habitHtml;
+            } else {
+                goodHtml += habitHtml;
+            }
+        }
+        badContainer.innerHTML = badHtml || '<div class="empty-message">Здесь пока пусто</div>';
+        goodContainer.innerHTML = goodHtml || '<div class="empty-message">Полезные привычки ждут вас</div>';
+        document.querySelectorAll('.check-btn-item:not([disabled])').forEach(btn => {
+            btn.removeEventListener('click', btn._checkHandler);
+            const handler = (e) => {
+                const id = btn.getAttribute('data-id');
+                if (id) markHabitDone(id);
+                e.stopPropagation();
+            };
+            btn.addEventListener('click', handler);
+            btn._checkHandler = handler;
+        });
+        document.querySelectorAll('.delete-btn-item').forEach(btn => {
+            btn.removeEventListener('click', btn._delHandler);
+            const delHandler = (e) => {
+                const id = btn.getAttribute('data-id');
+                if (id) deleteHabit(id);
+                e.stopPropagation();
+            };
+            btn.addEventListener('click', delHandler);
+            btn._delHandler = delHandler;
+        });
+        updateStatsPanel();
+    }
+    function markHabitDone(habitId) {
+        const habit = habits.find(h => h.id === habitId);
+        if (!habit) {
+            console.error("Habit not found:", habitId);
+            return;
+        }
+        const today = getTodayDate();
+        if (habit.lastCheckDate === today) {
+            showToast("Сегодня уже отмечено! Жди завтра", "#ff99cc");
+            return;
+        }
+        const oldStreak = habit.currentStreak;
+        const newStreak = computeNewStreak(habit);
+        habit.currentStreak = newStreak;
+        habit.lastCheckDate = today;
+        saveToDB();
+        console.log(`Marked "${habit.name}": old streak=${oldStreak}, new streak=${newStreak}, date=${today}`);
+        renderHabitsOnly();
+        updateCatAndGlobalUI(true);
+        if (newStreak > oldStreak && oldStreak > 0) {
+            showToast(`${habit.name} +1 день! Цепочка: ${newStreak}`, "#ecb2ff");
+        } else if (newStreak === 1 && oldStreak === 0) {
+            showToast(`${habit.name} — первый шаг! Цепочка: 1 день`, "#dbbaff");
+        } else {
+            showToast(`${habit.name} отмечено! Цепочка: ${newStreak} дн.`, "#c8a2ff");
+        }
+    }
+    function deleteHabit(habitId) {
+        habits = habits.filter(h => h.id !== habitId);
+        saveToDB();
+        renderHabitsOnly();
+        updateCatAndGlobalUI();
+        showToast("Привычка удалена, продолжайте сиять!", "#ffb3d1");
+    }
+    function addNewHabit(name) {
+        const trimmed = name.trim();
+        if (trimmed === "") {
+            showToast("Введите название привычки!", "#ffa0d0");
+            return false;
+        }
+        if (habits.some(h => h.name.toLowerCase() === trimmed.toLowerCase())) {
+            showToast("Такая привычка уже есть!", "#ffb5b5");
+            return false;
+        }
+        const newHabit = {
+            id: crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(36),
+            name: trimmed,
+            currentStreak: 0,
+            lastCheckDate: null,
+            createdAt: new Date().toISOString()
+        };
+        habits.unshift(newHabit);
+        saveToDB();
+        renderHabitsOnly();
+        updateCatAndGlobalUI();
+        showToast(`"${trimmed}" добавлена! Время сиять`, "#dbbaff");
+        return true;
+    }
+    function updateStatsPanel() {
+        const total = habits.length;
+        let sumStreak = 0;
+        let maxStreakVal = 0;
+        let todayDone = 0;
+        const today = getTodayDate();
+        for (let h of habits) {
+            sumStreak += h.currentStreak;
+            if (h.currentStreak > maxStreakVal) maxStreakVal = h.currentStreak;
+            if (h.lastCheckDate === today) todayDone++;
+        }
+        document.getElementById('totalHabits').innerText = total;
+        document.getElementById('totalStreak').innerText = sumStreak;
+        document.getElementById('maxStreak').innerText = maxStreakVal;
+        document.getElementById('todayCompleted').innerText = todayDone;
+    }
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function (m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    function renderAll() {
+        loadData();
+        recalcAllStreaks();
+        saveToDB();
+        renderHabitsOnly();
+        updateCatAndGlobalUI();
+    }
+    function showToast(msg, colorHint) {
+        let toast = document.getElementById('dynamicToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'dynamicToast';
+            toast.style.position = 'fixed';
+            toast.style.bottom = '30px';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.backgroundColor = '#221c3ae6';
+            toast.style.backdropFilter = 'blur(24px)';
+            toast.style.padding = '12px 32px';
+            toast.style.borderRadius = '60px';
+            toast.style.fontWeight = 'bold';
+            toast.style.color = '#ffecfd';
+            toast.style.zIndex = '9999';
+            toast.style.border = '1px solid #ff80cc';
+            toast.style.boxShadow = '0 0 18px #ff44aa';
+            toast.style.fontSize = '0.95rem';
+            toast.style.whiteSpace = 'nowrap';
+            document.body.appendChild(toast);
+        }
+        toast.innerText = msg;
+        toast.style.opacity = '1';
+        if (window.toastTimeout) clearTimeout(window.toastTimeout);
+        window.toastTimeout = setTimeout(() => { toast.style.opacity = '0'; }, 2200);
+    }
+    const canvas = document.getElementById('cometsCanvas');
+    const ctx = canvas.getContext('2d');
+    let comets = [];
+    const COMET_COUNT = 18;
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    class SoftComet {
+        constructor() { this.reset(); }
+        reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * -500 - 100;
+            this.size = Math.random() * 1.8 + 0.8;
+            this.speedY = Math.random() * 0.95 + 0.4;
+            this.speedX = (Math.random() - 0.5) * 0.3;
+            this.opacity = Math.random() * 0.45 + 0.2;
+            this.hue = 310 + Math.random() * 40;
+        }
+        update() {
+            this.y += this.speedY;
+            this.x += this.speedX;
+            if (this.y > canvas.height + 200) this.reset();
+        }
+        draw() {
+            const tailX = this.x - this.speedX * 50;
+            const tailY = this.y - this.speedY * 50;
+            const grad = ctx.createLinearGradient(this.x, this.y, tailX, tailY);
+            grad.addColorStop(0, `hsla(${this.hue}, 75%, 68%, ${this.opacity * 0.8})`);
+            grad.addColorStop(0.7, `hsla(${this.hue}, 65%, 55%, ${this.opacity * 0.2})`);
+            grad.addColorStop(1, `hsla(${this.hue}, 60%, 50%, 0)`);
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(tailX, tailY);
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = this.size * 0.6;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size * 0.5, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${this.hue}, 80%, 80%, ${this.opacity})`;
+            ctx.fill();
+        }
+    }
+    function initComets() {
+        comets = [];
+        for (let i = 0; i < COMET_COUNT; i++) comets.push(new SoftComet());
+    }
+    function animateComets() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'lighter';
+        comets.forEach(c => { c.update(); c.draw(); });
+        ctx.globalCompositeOperation = 'source-over';
+        requestAnimationFrame(animateComets);
+    }
+    resizeCanvas();
+    initComets();
+    animateComets();
+    window.addEventListener('resize', () => { resizeCanvas(); initComets(); });
+    canvas.style.opacity = '0.65';
+    canvas.style.filter = 'blur(1.8px)';
+    function init() {
+        renderAll();
+        const addBtn = document.getElementById('addHabitBtn');
+        const inputField = document.getElementById('habitNameInput');
+        if (addBtn) {
+            addBtn.addEventListener('click', () => {
+                const val = inputField.value;
+                if (addNewHabit(val)) {
+                    inputField.value = '';
+                    inputField.focus();
+                } else {
+                    inputField.classList.add('error-shake');
+                    setTimeout(() => inputField.classList.remove('error-shake'), 400);
+                }
+            });
+        }
+        if (inputField) {
+            inputField.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addBtn.click();
+            });
+        }
+    }
+    init();
+</script>
+</body>
+</html>
