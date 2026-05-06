@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реестр наблюдений за аномальными облаками</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Реестр наблюдений за аномальными облаками</h1>
+        </header>
+        <div class="actions">
+            <a href="/add" class="btn btn-primary">Добавить наблюдение</a>
+        </div>
+        <div class="filter-section">
+            <h3>Фильтр по типу облака:</h3>
+            <div class="filter-buttons">
+                <a href="/" class="filter-btn {% if not current_filter or current_filter == 'all' %}active{% endif %}">
+                    Все
+                </a>
+                {% for type_code, type_name in cloud_types %}
+                <a href="/?type={{ type_code }}" 
+                   class="filter-btn {% if current_filter == type_code %}active{% endif %}">
+                    {{ type_name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="observations-list">
+            <h2>Все наблюдения</h2>
+            {% if observations %}
+                <div class="observations-grid">
+                    {% for obs in observations %}
+                    <div class="observation-card">
+                        <div class="cloud-type-badge {{ obs.cloud_type }}">
+                            {% for c_type_code, c_type_name in cloud_types %}
+                                {% if c_type_code == obs.cloud_type %}
+                                    {{ c_type_name }}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="observation-content">
+                            <div class="info-row">
+                                <span class="label">Место:</span>
+                                <span class="value">{{ obs.location }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Дата и время:</span>
+                                <span class="value">{{ obs.date }} {{ obs.time }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Наблюдатель:</span>
+                                <span class="value">{{ obs.observer_name }}</span>
+                            </div>
+                            {% if obs.description %}
+                            <div class="info-row">
+                                <span class="label">Описание:</span>
+                                <span class="value">{{ obs.description }}</span>
+                            </div>
+                            {% endif %}
+                            {% if obs.photo_url %}
+                            <div class="info-row">
+                                <span class="label">Фото:</span>
+                                <a href="{{ obs.photo_url }}" target="_blank" class="photo-link">Смотреть фото</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>Пока нет ни одного наблюдения</p>
+                    <p>Станьте первым наблюдателем!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
