@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Лунное сияние — Трекер привычек</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, -apple-system, 'Montserrat', sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1.5rem;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            background: linear-gradient(145deg, #0b0719 0%, #1a1030 50%, #0c0922 100%);
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 30, 150, 0.25) 0%, rgba(0, 0, 0, 0.4) 80%);
+            pointer-events: none;
+            box-shadow: inset 0 0 100px rgba(255, 0, 120, 0.3);
+        }
+        #cometsCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.55;
+            filter: blur(1px);
+            will-change: transform;
+        }
+        .wrapper {
+            max-width: 1300px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(20, 12, 35, 0.45);
+            backdrop-filter: blur(24px) saturate(200%);
+            -webkit-backdrop-filter: blur(24px) saturate(200%);
+            border-radius: 3rem;
+            padding: 2rem 2.5rem 3.5rem;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 70, 180, 0.4), inset 0 0 35px rgba(255, 30, 150, 0.3);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 90, 190, 0.5);
+        }
+        .header-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 1rem;
+            background: rgba(45, 25, 70, 0.5);
+            padding: 0.8rem 2rem;
+            border-radius: 80px;
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 100, 200, 0.45);
+            box-shadow: 0 5px 20px rgba(255, 0, 100, 0.2);
+        }
+        .title-area h1 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #c084fc, #ff66c0, #f0a6ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            text-shadow: 0 0 12px rgba(255, 30, 150, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1.3;
+        }
+        .title-area h1 span {
+            font-size: 1.1rem !important;
+            background: linear-gradient(135deg, #c084fc, #ff66c0, #f0a6ff) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
+            letter-spacing: -0.3px;
+            font-weight: 600;
+            margin-top: 3px;
+            padding-left: 50px;
+        }
+        .cat-streak-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            background: transparent;
+            backdrop-filter: none;
+            padding: 0;
+            border: none;
+            box-shadow: none;
+            transform: translateZ(0);
+            margin-left: -1.7cm;
+        }
+        .custom-cat {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.2s;
+            margin-bottom: 0;
+            transform: rotate(0deg) scale(1);
+        }
+        .cat-svg {
+            width: 100px;
+            height: 100px;
+            transition: transform 0.3s ease, filter 0.2s;
+            display: block;
+            margin: 0 auto;
+            transform-origin: center center;
+        }
+        .cat-svg.active-cat {
+            filter: drop-shadow(0 0 16px #ff66d0) !important;
+            animation: catGlowPulse 1.2s infinite ease-in-out;
+        }
+        .cat-svg.inactive-cat {
+            filter: grayscale(0.6) drop-shadow(0 0 4px #b370a0) !important;
+            opacity: 0.7;
+        }
+        .cat-svg.streak-cat-pop {
+            animation: catPopOnce 0.45s cubic-bezier(0.2, 1.2, 0.8, 1) forwards;
+        }
+        @keyframes catPopOnce {
+            0% { transform: scale(1); filter: drop-shadow(0 0 6px #ff66c0); }
+            50% { transform: scale(1.18); filter: drop-shadow(0 0 32px #ff44dd, 0 0 8px #ffb0ff); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 16px #ff66d0); }
+        }
+        @keyframes catGlowPulse {
+            0% { filter: drop-shadow(0 0 6px #ff66c0); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 22px #ff44aa); transform: scale(1.04); }
+            100% { filter: drop-shadow(0 0 6px #ff66c0); transform: scale(1); }
+        }
+        .global-streak {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #ffeef8;
+            text-shadow: 0 0 6px #ff66c0, 0 0 2px #ffb0e0;
+            text-align: center;
+            letter-spacing: 0.5px;
+            background: transparent;
+            padding: 0;
+            margin-top: 4px;
+            margin-left: -0.3cm;
+            min-width: auto;
+            display: inline-block;
+            line-height: 1.2;
+        }
+        .sub {
+            text-align: center;
+            color: #f0d6ff;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-shadow: 0 0 6px rgba(255, 150, 200, 0.8);
+        }
+        .add-habit {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 2rem;
+            background: rgba(20, 8, 40, 0.55);
+            padding: 1.3rem 1.8rem;
+            border-radius: 3rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 70, 180, 0.5);
+            align-items: center;
+        }
+        .add-habit input {
+            flex: 2;
+            min-width: 200px;
+            background: rgba(255, 220, 250, 0.2);
+            border: 1px solid #ff77cc;
+            padding: 12px 20px;
+            border-radius: 60px;
+            font-size: 1rem;
+            color: #ffffff;
+            outline: none;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .add-habit input::placeholder {
+            color: #e0b0ff;
+        }
+        .add-habit input:focus {
+            border-color: #ff66c0;
+            box-shadow: 0 0 20px #ff44aa;
+            background: rgba(30, 10, 55, 0.8);
+        }
+        .type-selector {
+            display: flex;
+            gap: 12px;
+            background: rgba(0,0,0,0.3);
+            padding: 4px 12px;
+            border-radius: 60px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,100,200,0.5);
+        }
+        .type-option {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 6px 16px;
+            border-radius: 40px;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.05);
+        }
+        .type-option input {
+            display: none;
+        }
+        .type-option span {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ffd0f0;
+        }
+        .type-option.active-bad {
+            background: rgba(255, 70, 120, 0.7);
+            box-shadow: 0 0 12px #ff4070;
+            border: 1px solid #ffb0d0;
+        }
+        .type-option.active-good {
+            background: rgba(90, 210, 140, 0.7);
+            box-shadow: 0 0 12px #6effb0;
+            border: 1px solid #a0ffd0;
+        }
+        .neon-btn {
+            background: rgba(255, 60, 160, 0.25);
+            border: 2px solid #ff6ac4;
+            padding: 12px 32px;
+            border-radius: 60px;
+            font-weight: bold;
+            color: #ffddf5;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s;
+            box-shadow: 0 0 12px #ff44aa;
+            letter-spacing: 0.5px;
+        }
+        .neon-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 28px #ff56bc;
+            background: rgba(255, 80, 170, 0.45);
+            color: white;
+            border-color: #ff90d0;
+        }
+        .habits-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .habit-column {
+            background: rgba(25, 12, 48, 0.55);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 70, 180, 0.5);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 18px rgba(255, 0, 110, 0.2);
+        }
+        .column-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-align: center;
+            text-shadow: 0 0 5px #ff44aa;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .bad-title { color: #ff9ee0; }
+        .good-title { color: #a0ffd0; }
+        .habits-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 12px;
+        }
+        .habits-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+        .habits-grid::-webkit-scrollbar-track {
+            background: rgba(190, 100, 180, 0.15);
+            border-radius: 10px;
+        }
+        .habits-grid::-webkit-scrollbar-thumb {
+            background: #ff7ac8;
+            border-radius: 10px;
+        }
+        .habit-card {
+            background: rgba(45, 25, 75, 0.6);
+            backdrop-filter: blur(25px);
+            border-radius: 2.2rem;
+            padding: 1rem 1.3rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border: 1px solid rgba(255, 120, 200, 0.5);
+            transition: all 0.2s;
+            box-shadow: 0 0 8px rgba(255, 0, 130, 0.2);
+        }
+        .habit-name {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #f3d9ff;
+            text-shadow: 0 0 2px #c756ff;
+            word-break: break-word;
+            flex: 2;
+        }
+        .habit-info {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            flex: 3;
+        }
+        .streak-badge {
+            background: rgba(255, 80, 160, 0.35);
+            border-radius: 40px;
+            padding: 4px 14px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #ffebf5;
+            backdrop-filter: blur(8px);
+            border: 1px solid #ff83cc;
+        }
+        .last-updated {
+            font-size: 0.7rem;
+            color: #e0bbff;
+            background: rgba(100, 40, 130, 0.5);
+            padding: 4px 12px;
+            border-radius: 60px;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .edit-btn, .check-btn, .delete-btn {
+            border: none;
+            background: rgba(230, 150, 200, 0.3);
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #ffc0ea;
+            border: 1px solid rgba(255, 100, 160, 0.6);
+            backdrop-filter: blur(4px);
+        }
+        .edit-btn:hover, .check-btn:hover:not(:disabled), .delete-btn:hover {
+            transform: scale(1.02);
+            color: white;
+        }
+        .check-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(24px);
+            border-radius: 2.5rem;
+            padding: 0.9rem 2rem;
+            flex-wrap: wrap;
+            gap: 18px;
+            color: #f0ccff;
+            border: 1px solid rgba(255, 110, 190, 0.7);
+            font-weight: 600;
+        }
+        .stats span {
+            font-weight: 800;
+            color: #ffb3e0;
+            text-shadow: 0 0 4px #ff44aa;
+        }
+        @media (max-width: 900px) {
+            .habits-section { grid-template-columns: 1fr; }
+            .wrapper { padding: 1.5rem; }
+            .habit-card { flex-direction: column; align-items: stretch; }
+            .actions { justify-content: flex-start; margin-top: 6px; }
+            .habit-info { justify-content: space-between; }
+            .add-habit { flex-direction: column; align-items: stretch; }
+            .type-selector { justify-content: center; }
+        }
+        .error-shake {
+            animation: shakeNeon 0.3s ease-in-out 0s 2;
+            border-color: #ff88cc !important;
+        }
+        @keyframes shakeNeon {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            100% { transform: translateX(0); }
+        }
+        .streak-pop {
+            animation: streakPop 0.4s ease-out;
+        }
+        @keyframes streakPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.25); color: #ffd700; text-shadow: 0 0 12px #ff66c0; }
+            100% { transform: scale(1); }
+        }
+        .confirm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        .confirm-dialog {
+            background: #2a1f3e;
+            border-radius: 2rem;
+            padding: 1.8rem;
+            border: 1px solid #ff77cc;
+            max-width: 320px;
+            text-align: center;
+        }
+        .confirm-dialog p { margin-bottom: 1.5rem; color: #ffd9f0; }
+        .confirm-dialog button { margin: 0 8px; padding: 8px 20px; border-radius: 40px; border: none; cursor: pointer; }
+        .confirm-yes { background: #ff5690; color: white; }
+        .confirm-no { background: #3a2a55; color: #ffc0ea; }
+        .move-habit-btn {
+            background: rgba(100, 70, 180, 0.6);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            color: #ffd0ff;
+            transition: 0.2s;
+        }
+        .move-habit-btn:hover {
+            background: #c06eff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<canvas id="cometsCanvas"></canvas>
+<div class="wrapper">
+    <div class="header-stats">
+        <div class="title-area">
+            <h1>🌙Лунное сияние<span>трекер привычек</span></h1>
+        </div>
+        <div class="cat-streak-panel" id="catPanel">
+            <div class="custom-cat" id="catIconContainer">
+                <svg class="cat-svg" id="catSvgElem" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="50" cy="98" rx="28" ry="18" fill="#FFE5F4" stroke="#FF66B5" stroke-width="2.5"/>
+                    <circle cx="50" cy="70" r="32" fill="#FFE5F4" stroke="#FF66B5" stroke-width="2.5"/>
+                    <path d="M22 47 L18 20 L46 40 Z" fill="#FFC8E4" stroke="#FF66B5" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M76 50 L82 20 L54 38 Z" fill="#FFC8E4" stroke="#FF66B5" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M27 40 L22 25 L44 36 Z" fill="#FF9ECF" stroke="none"/>
+                    <path d="M73 40 L78 25 L56 36 Z" fill="#FF9ECF" stroke="none"/>
+                    <ellipse cx="41" cy="57" rx="6.5" ry="7.5" fill="#2D1B46"/>
+                    <ellipse cx="59" cy="57" rx="6.5" ry="7.5" fill="#2D1B46"/>
+                    <circle cx="43" cy="54" r="2.5" fill="white"/>
+                    <circle cx="61" cy="54" r="2.5" fill="white"/>
+                    <path d="M41 53 L42.5 56.5 L41 60 L39.5 56.5 Z" fill="#C58AFF" opacity="0.95"/>
+                    <path d="M59 53 L60.5 56.5 L59 60 L57.5 56.5 Z" fill="#C58AFF" opacity="0.95"/>
+                    <ellipse cx="50" cy="66" rx="5" ry="3.8" fill="#FF7AAA"/>
+                    <path d="M44 71 L50 67 L56 71" stroke="#FF5A95" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    <path d="M50 70 L50 73" stroke="#FF5A95" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="35" y1="64" x2="18" y2="60" stroke="#E0A0C0" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="35" y1="68" x2="16" y2="68" stroke="#E0A0C0" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="35" y1="72" x2="18" y2="76" stroke="#E0A0C0" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="65" y1="64" x2="82" y2="60" stroke="#E0A0C0" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="65" y1="68" x2="84" y2="68" stroke="#E0A0C0" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="65" y1="72" x2="82" y2="76" stroke="#E0A0C0" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M44 44 L56 44 L50 52 Z" fill="#FFEAA0" stroke="#FFBB66" stroke-width="1.5"/>
+                    <circle cx="50" cy="39" r="8" fill="#FFE884" stroke="#FFAA66" stroke-width="1.2"/>
+                    <circle cx="37" cy="66" r="4.5" fill="#FFB0D0" opacity="0.7"/>
+                    <circle cx="63" cy="66" r="4.5" fill="#FFB0D0" opacity="0.7"/>
+                    <path d="M72 28 L74 32 L78 32 L75 35 L76 39 L72 37 L68 39 L69 35 L66 32 L70 32 Z" fill="#FFEEB0" opacity="0.9"/>
+                    <path d="M28 28 L30 32 L34 32 L31 35 L32 39 L28 37 L24 39 L25 35 L22 32 L26 32 Z" fill="#FFEEB0" opacity="0.85"/>
+                    <ellipse cx="36" cy="102" rx="10" ry="6" fill="#FFD6EA" stroke="#FF66B5" stroke-width="1.5"/>
+                    <ellipse cx="64" cy="102" rx="10" ry="6" fill="#FFD6EA" stroke="#FF66B5" stroke-width="1.5"/>
+                    <path d="M78 95 Q92 88 88 76 Q86 68 80 72" stroke="#FFC8E4" stroke-width="4" fill="none" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="global-streak" id="globalStreakDisplay">0</div>
+        </div>
+    </div>
+    <div class="sub">Выберите тип привычки и добавляйте абсолютно любые названия</div>
+    <div class="add-habit">
+        <input type="text" id="habitNameInput" placeholder="Ваша привычка: йога, кофе, соцсети, бег...">
+        <div class="type-selector" id="typeSelector">
+            <label class="type-option" id="badOption">
+                <input type="radio" name="habitType" value="bad" checked> <span>Вредная(отказ)</span>
+            </label>
+            <label class="type-option" id="goodOption">
+                <input type="radio" name="habitType" value="good"> <span>Полезная(выполнение)</span>
+            </label>
+        </div>
+        <button class="neon-btn" id="addHabitBtn">Добавить</button>
+    </div>
+    <div id="habitsContainer" class="habits-section">
+        <div class="habit-column">
+            <div class="column-title bad-title">Вредные привычки(отказ)</div>
+            <div class="habits-grid" id="badHabits"></div>
+        </div>
+        <div class="habit-column">
+            <div class="column-title good-title">Полезные привычки(выполнение)</div>
+            <div class="habits-grid" id="goodHabits"></div>
+        </div>
+    </div>
+    <div class="stats">
+        <p>Всего: <span id="totalHabits">0</span></p>
+        <p>Суммарный streak: <span id="totalStreak">0</span></p>
+        <p>Макс. цепочка: <span id="maxStreak">0</span></p>
+        <p>Выполнено сегодня: <span id="todayCompleted">0</span></p>
+    </div>
+</div>
+<script>
+    const STORAGE_KEY = "lunar_habit_free_v2";
+    let habits = []; 
+    function getTodayDate() { return new Date().toISOString().slice(0, 10); }
+    function getYesterdayStr() { const y = new Date(); y.setDate(y.getDate() - 1); return y.toISOString().slice(0, 10); }
+    function loadData() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+            try { habits = JSON.parse(raw); if (!Array.isArray(habits)) habits = []; } catch(e) { habits = []; }
+        }
+        habits = habits.map(h => ({ 
+            ...h, 
+            currentStreak: h.currentStreak ?? 0, 
+            lastCheckDate: h.lastCheckDate ?? null,
+            history: Array.isArray(h.history) ? h.history : (h.lastCheckDate ? [h.lastCheckDate] : []),
+            type: (h.type === 'bad' || h.type === 'good') ? h.type : 'good'
+        }));
+    }
+    function saveToDB() { localStorage.setItem(STORAGE_KEY, JSON.stringify(habits)); }
+    function recalcStreakFromHistory(habit) {
+        if (!habit.history || habit.history.length === 0) return 0;
+        let streak = 0;
+        let checkDate = new Date();
+        checkDate.setHours(0,0,0,0);
+        for (let i = 0; i < 3650; i++) {
+            const dateStr = checkDate.toISOString().slice(0,10);
+            if (habit.history.includes(dateStr)) {
+                streak++;
+                checkDate.setDate(checkDate.getDate() - 1);
+            } else break;
+        }
+        return streak;
+    }
+    function refreshAllStreaks() {
+        let changed = false;
+        for (let h of habits) {
+            const newStreak = recalcStreakFromHistory(h);
+            if (h.currentStreak !== newStreak) { h.currentStreak = newStreak; changed = true; }
+        }
+        if (changed) saveToDB();
+    }
+    function computeGlobalStreak() {
+        if (habits.length === 0) return 0;
+        return Math.max(...habits.map(h => h.currentStreak), 0);
+    }
+    function animateCatCelebration() {
+        const catSvg = document.getElementById("catSvgElem");
+        if (!catSvg) return;
+        catSvg.classList.remove("streak-cat-pop");
+        void catSvg.offsetWidth; 
+        catSvg.classList.add("streak-cat-pop");
+        setTimeout(() => catSvg?.classList.remove("streak-cat-pop"), 480);
+        const globalStreak = computeGlobalStreak();
+        if(globalStreak > 0) { catSvg.classList.remove("inactive-cat"); catSvg.classList.add("active-cat"); }
+        else { catSvg.classList.remove("active-cat"); catSvg.classList.add("inactive-cat"); }
+    }
+    function updateCatAndGlobalUI(animate = false, isMarkTrigger = false) {
+        const globalStreak = computeGlobalStreak();
+        const streakDiv = document.getElementById("globalStreakDisplay");
+        if(streakDiv) {
+            if(animate) streakDiv.classList.add('streak-pop');
+            streakDiv.innerText = globalStreak;
+            if(animate) setTimeout(() => streakDiv.classList.remove('streak-pop'), 400);
+        }
+        const catSvg = document.getElementById("catSvgElem");
+        if(catSvg) {
+            if(globalStreak > 0) { catSvg.classList.remove("inactive-cat"); catSvg.classList.add("active-cat"); } 
+            else { catSvg.classList.remove("active-cat"); catSvg.classList.add("inactive-cat"); }
+        }
+        if(isMarkTrigger) animateCatCelebration();
+    }
+    function markHabitDone(habitId) {
+        const habit = habits.find(h => h.id === habitId);
+        if(!habit) return;
+        const today = getTodayDate();
+        if(habit.lastCheckDate === today) { showToast("Уже отмечено сегодня!", "#ff99cc"); return; }
+        if (!habit.history) habit.history = [];
+        if (!habit.history.includes(today)) habit.history.push(today);
+        const newStreak = recalcStreakFromHistory(habit);
+        habit.currentStreak = newStreak;
+        habit.lastCheckDate = today;
+        saveToDB();
+        renderUI();
+        updateCatAndGlobalUI(true, true);
+        showToast(`${habit.name} +1 день! Цепочка: ${newStreak}`, "#dbbaff");
+    }
+    function addHabit(name, type) {
+        const trimmed = name.trim();
+        if(trimmed === "") { showToast("Введите название привычки!", "#ffa0d0"); return false; }
+        if(habits.some(h => h.name.toLowerCase() === trimmed.toLowerCase())) { showToast("Такая привычка уже есть!", "#ffb5b5"); return false; }
+        const newHabit = {
+            id: crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random(),
+            name: trimmed,
+            type: type,
+            currentStreak: 0,
+            lastCheckDate: null,
+            history: [],
+            createdAt: new Date().toISOString()
+        };
+        habits.unshift(newHabit);
+        saveToDB();
+        renderUI();
+        updateCatAndGlobalUI(false, false);
+        showToast(`"${trimmed}" добавлена в ${type === 'bad' ? 'вредные' : 'полезные'}`, "#dbbaff");
+        return true;
+    }
+    function editHabitName(habitId) {
+        const habit = habits.find(h => h.id === habitId);
+        if(!habit) return;
+        const newName = prompt("✏️ Введите новое название:", habit.name);
+        if(newName && newName.trim() !== "") {
+            const trimmed = newName.trim();
+            if(habits.some(h => h.id !== habitId && h.name.toLowerCase() === trimmed.toLowerCase())) {
+                showToast("Имя уже используется!", "#ffa0d0");
+                return;
+            }
+            habit.name = trimmed;
+            saveToDB();
+            renderUI();
+            showToast("Название обновлено!", "#b3ffcc");
+        }
+    }
+    function confirmDeleteHabit(habitId) {
+        const modal = document.createElement('div');
+        modal.className = 'confirm-modal';
+        modal.innerHTML = `<div class="confirm-dialog"><p>Удалить привычку навсегда?</p><button class="confirm-yes">Да</button><button class="confirm-no">Отмена</button></div>`;
+        document.body.appendChild(modal);
+        modal.querySelector('.confirm-yes').onclick = () => {
+            habits = habits.filter(h => h.id !== habitId);
+            saveToDB();
+            renderUI();
+            updateCatAndGlobalUI(false, false);
+            showToast("Привычка удалена", "#ffb3d1");
+            modal.remove();
+        };
+        modal.querySelector('.confirm-no').onclick = () => modal.remove();
+    }
+    function updateStatsPanel() {
+        const total = habits.length;
+        let sumStreak = 0, maxStreakVal = 0, todayDone = 0;
+        const today = getTodayDate();
+        for(let h of habits) {
+            sumStreak += h.currentStreak;
+            if(h.currentStreak > maxStreakVal) maxStreakVal = h.currentStreak;
+            if(h.lastCheckDate === today) todayDone++;
+        }
+        document.getElementById('totalHabits').innerText = total;
+        document.getElementById('totalStreak').innerText = sumStreak;
+        document.getElementById('maxStreak').innerText = maxStreakVal;
+        document.getElementById('todayCompleted').innerText = todayDone;
+    }
+    function renderUI() {
+        const badContainer = document.getElementById('badHabits');
+        const goodContainer = document.getElementById('goodHabits');
+        if (!badContainer || !goodContainer) return;
+        const today = getTodayDate();
+        let badHtml = '', goodHtml = '';
+        const badHabits = habits.filter(h => h.type === 'bad');
+        const goodHabitsArr = habits.filter(h => h.type === 'good');
+        const renderCard = (habit, isBad) => {
+            const isCheckedToday = (habit.lastCheckDate === today);
+            const btnText = isCheckedToday ? 'Отмечено' : 'Отметить';
+            const moveTargetType = isBad ? 'good' : 'bad';
+            const moveLabel = isBad ? 'Сделать полезной' : 'Сделать вредной';
+            return `
+                <div class="habit-card" data-id="${habit.id}">
+                    <div class="habit-info">
+                        <div class="habit-name">${escapeHtml(habit.name)}</div>
+                        <div class="streak-badge">${habit.currentStreak}дн.</div>
+                        <div class="last-updated">${habit.lastCheckDate || '—'}</div>
+                    </div>
+                    <div class="actions">
+                        <button class="edit-btn edit-habit" data-id="${habit.id}" title="Редактировать">✏️</button>
+                        <button class="check-btn check-btn-item" data-id="${habit.id}" ${isCheckedToday ? 'disabled' : ''}>${btnText}</button>
+                        <button class="delete-btn delete-btn-item" data-id="${habit.id}">🗑️</button>
+                    </div>
+                </div>
+            `;
+        };
+        badHabits.forEach(h => { badHtml += renderCard(h, true); });
+        goodHabitsArr.forEach(h => { goodHtml += renderCard(h, false); });
+        badContainer.innerHTML = badHtml || '<div class="empty-message">Пока нет вредных привычек. Добавьте!</div>';
+        goodContainer.innerHTML = goodHtml || '<div class="empty-message">Здесь появятся ваши полезные привычки</div>';
+        document.querySelectorAll('.check-btn-item:not([disabled])').forEach(btn => {
+            btn.addEventListener('click', (e) => { const id = btn.dataset.id; if(id) markHabitDone(id); e.stopPropagation(); });
+        });
+        document.querySelectorAll('.delete-btn-item').forEach(btn => {
+            btn.addEventListener('click', (e) => { const id = btn.dataset.id; if(id) confirmDeleteHabit(id); e.stopPropagation(); });
+        });
+        document.querySelectorAll('.edit-habit').forEach(btn => {
+            btn.addEventListener('click', (e) => { const id = btn.dataset.id; if(id) editHabitName(id); e.stopPropagation(); });
+        });
+        document.querySelectorAll('.move-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => { const id = btn.dataset.id; const target = btn.dataset.target; if(id && target) moveHabit(id, target); e.stopPropagation(); });
+        });
+        updateStatsPanel();
+    }
+    function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
+    function showToast(msg, bgHint) {
+        let toast = document.getElementById('dynamicToast');
+        if(!toast) {
+            toast = document.createElement('div');
+            toast.id = 'dynamicToast';
+            toast.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#221c3ae6; backdrop-filter:blur(24px); padding:12px 32px; border-radius:60px; font-weight:bold; color:#ffecfd; z-index:9999; border:1px solid #ff80cc; box-shadow:0 0 18px #ff44aa; white-space:nowrap; max-width:90vw; white-space:normal; text-align:center;';
+            document.body.appendChild(toast);
+        }
+        toast.innerText = msg;
+        toast.style.opacity = '1';
+        if(window.toastTimeout) clearTimeout(window.toastTimeout);
+        window.toastTimeout = setTimeout(() => toast.style.opacity = '0', 2200);
+    }
+    const canvas = document.getElementById('cometsCanvas');
+    let ctx = canvas.getContext('2d');
+    let comets = [];
+    let animationFrameId = null;
+    let isPageActive = true;
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    class SoftComet {
+        constructor() { this.reset(); }
+        reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * -500 - 100; this.size = Math.random() * 1.8 + 0.8; this.speedY = Math.random() * 0.95 + 0.4; this.speedX = (Math.random() - 0.5) * 0.3; this.opacity = Math.random() * 0.45 + 0.2; this.hue = 310 + Math.random() * 40; }
+        update() { this.y += this.speedY; this.x += this.speedX; if(this.y > canvas.height + 200) this.reset(); }
+        draw() { const tailX = this.x - this.speedX * 50, tailY = this.y - this.speedY * 50; const grad = ctx.createLinearGradient(this.x, this.y, tailX, tailY); grad.addColorStop(0, `hsla(${this.hue}, 75%, 68%, ${this.opacity * 0.8})`); grad.addColorStop(1, `hsla(${this.hue}, 60%, 50%, 0)`); ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(tailX, tailY); ctx.strokeStyle = grad; ctx.lineWidth = this.size * 0.6; ctx.lineCap = 'round'; ctx.stroke(); ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 0.5, 0, Math.PI*2); ctx.fillStyle = `hsla(${this.hue}, 80%, 80%, ${this.opacity})`; ctx.fill(); }
+    }
+    function initComets() { comets = Array.from({ length: 18 }, () => new SoftComet()); }
+    function animateComets() { if(!isPageActive) { animationFrameId = requestAnimationFrame(animateComets); return; } if(ctx) { ctx.clearRect(0,0,canvas.width,canvas.height); ctx.globalCompositeOperation = 'lighter'; comets.forEach(c=>{c.update(); c.draw();}); ctx.globalCompositeOperation = 'source-over'; } animationFrameId = requestAnimationFrame(animateComets); }
+    function handleVisibilityChange() { isPageActive = !document.hidden; }
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('resize', () => { resizeCanvas(); initComets(); });
+    resizeCanvas(); initComets(); animateComets();
+    function setupTypeSelector() {
+        const radioBad = document.querySelector('input[value="bad"]');
+        const radioGood = document.querySelector('input[value="good"]');
+        const badLabel = document.getElementById('badOption');
+        const goodLabel = document.getElementById('goodOption');
+        function updateStyle() {
+            if(radioBad.checked) { badLabel.classList.add('active-bad'); goodLabel.classList.remove('active-good'); }
+            else { goodLabel.classList.add('active-good'); badLabel.classList.remove('active-bad'); }
+        }
+        radioBad.addEventListener('change', updateStyle);
+        radioGood.addEventListener('change', updateStyle);
+        updateStyle();
+    }
+    function init() {
+        loadData();
+        refreshAllStreaks();
+        saveToDB();
+        renderUI();
+        updateCatAndGlobalUI(false, false);
+        setupTypeSelector();
+        document.getElementById('addHabitBtn').addEventListener('click', () => {
+            const nameInput = document.getElementById('habitNameInput');
+            const selectedType = document.querySelector('input[name="habitType"]:checked').value;
+            if(addHabit(nameInput.value, selectedType)) nameInput.value = '';
+            else nameInput.classList.add('error-shake'), setTimeout(()=>nameInput.classList.remove('error-shake'),400);
+        });
+        document.getElementById('habitNameInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') document.getElementById('addHabitBtn').click(); });
+    }
+    init();
+</script>
+</body>
+</html>
