@@ -118,6 +118,7 @@
             box-shadow: none;
             transform: translateZ(0);
             margin-left: 2cm;
+            animation: none !important;
         }
         .custom-cat {
             display: flex;
@@ -177,6 +178,8 @@
             display: inline-block;
             line-height: 1.2;
             transform: translateX(-0.2cm);
+            /* Анимация счётчика полностью отключена */
+            animation: none;
         }
         .sub {
             text-align: center;
@@ -430,13 +433,9 @@
             25% { transform: translateX(-6px); }
             100% { transform: translateX(0); }
         }
+        /* Убираем анимацию счетчика полностью */
         .streak-pop {
-            animation: streakPop 0.5s ease-out;
-        }
-        @keyframes streakPop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.35); color: #ffd700; text-shadow: 0 0 16px #ff66c0, 0 0 30px #ff44aa; }
-            100% { transform: scale(1); }
+            animation: none;
         }
         .confirm-modal {
             position: fixed;
@@ -662,9 +661,9 @@
         const globalStreak = computeGlobalStreak();
         const streakDiv = document.getElementById("globalStreakDisplay");
         if(streakDiv) {
-            if(animate) streakDiv.classList.add('streak-pop');
+            // Анимация счетчика полностью отключена — удаляем класс и не добавляем его никогда
+            streakDiv.classList.remove('streak-pop');
             streakDiv.innerText = globalStreak;
-            if(animate) setTimeout(() => streakDiv.classList.remove('streak-pop'), 400);
         }
         const catSvg = document.getElementById("catSvgElem");
         if(catSvg) {
@@ -754,11 +753,12 @@
         const renderCard = (habit) => {
             const isCheckedToday = (habit.lastCheckDate === today);
             const btnText = isCheckedToday ? 'Отмечено' : 'Отметить';
+            const streakHtml = habit.currentStreak > 0 ? `<div class="streak-badge">${habit.currentStreak} дн. стрик</div>` : '';
             return `
                 <div class="habit-card" data-id="${habit.id}">
                     <div class="habit-info">
                         <div class="habit-name">${escapeHtml(habit.name)}</div>
-                        <div class="streak-badge">${habit.currentStreak} дн.</div>
+                        ${streakHtml}
                         <div class="last-updated">${habit.lastCheckDate || '—'}</div>
                     </div>
                     <div class="actions">
